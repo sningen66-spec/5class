@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Эргономика · 5 класс</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@500;600&family=Nunito+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#EEF2F0;
+    --paper:#FFFFFF;
+    --ink:#20302C;
+    --ink-soft:#526059;
+    --teal:#1D6F64;
+    --teal-dark:#0F4A42;
+    --teal-pale:#DCEEEA;
+    --amber:#D98E04;
+    --amber-dark:#8A5A02;
+    --amber-pale:#FBEBCC;
+    --coral:#D0553B;
+    --coral-pale:#F7E1DB;
+    --line:#D8E0DC;
+    --radius:16px;
+    --shadow:0 1px 2px rgba(32,48,44,.05), 0 8px 24px rgba(32,48,44,.06);
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--bg);
+    color:var(--ink);
+    font-family:'Nunito Sans', sans-serif;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3,.brand,.nav-btn,.opt-letter,.grade-num{font-family:'Fredoka', sans-serif;}
+  .app{max-width:760px;margin:0 auto;padding:28px 20px 64px;}
+
+  /* header */
+  .topbar{display:flex;align-items:center;gap:14px;margin-bottom:22px;}
+  .logo{
+    width:46px;height:46px;border-radius:13px;background:var(--teal);
+    display:flex;align-items:center;justify-content:center;flex:none;
+  }
+  .brand{font-size:22px;font-weight:600;color:var(--teal-dark);margin:0;}
+  .brand-sub{font-size:13px;color:var(--ink-soft);margin:2px 0 0;}
+
+  nav.tabs{display:flex;gap:8px;margin-bottom:26px;border-bottom:1.5px solid var(--line);}
+  .nav-btn{
+    appearance:none;border:none;background:none;cursor:pointer;
+    padding:10px 4px 12px;font-size:15px;font-weight:500;color:var(--ink-soft);
+    border-bottom:3px solid transparent;margin-bottom:-1.5px;transition:color .15s ease;
+  }
+  .nav-btn.active{color:var(--teal-dark);border-bottom-color:var(--teal);}
+  .nav-btn:hover{color:var(--teal-dark);}
+
+  .view{display:none;}
+  .view.active{display:block;animation:fade .25s ease;}
+  @keyframes fade{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:none;}}
+
+  /* intro / cards */
+  .lede{color:var(--ink-soft);margin:0 0 22px;font-size:15.5px;max-width:56ch;}
+  .topic{
+    background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    margin-bottom:12px;overflow:hidden;box-shadow:var(--shadow);
+  }
+  .topic-head{
+    display:flex;align-items:center;gap:14px;padding:16px 18px;cursor:pointer;user-select:none;
+  }
+  .topic-ico{
+    width:38px;height:38px;border-radius:10px;flex:none;
+    display:flex;align-items:center;justify-content:center;background:var(--teal-pale);
+  }
+  .topic-ico svg{width:20px;height:20px;stroke:var(--teal-dark);}
+  .topic-title{font-weight:800;font-size:15.5px;flex:1;}
+  .chev{width:11px;height:11px;border-right:2px solid var(--ink-soft);border-bottom:2px solid var(--ink-soft);
+    transform:rotate(45deg);transition:transform .2s ease;margin-right:4px;flex:none;}
+  .topic.open .chev{transform:rotate(-135deg);}
+  .topic-body{max-height:0;overflow:hidden;transition:max-height .28s ease;}
+  .topic.open .topic-body{max-height:340px;}
+  .topic-body-inner{padding:0 18px 18px 70px;color:var(--ink-soft);font-size:14.5px;}
+  .topic-body-inner ul{margin:8px 0 0;padding-left:18px;}
+  .topic-body-inner li{margin-bottom:4px;}
+
+  .go-practice{
+    display:block;width:100%;margin-top:22px;padding:15px;border:none;border-radius:14px;
+    background:var(--teal);color:#fff;font-family:'Fredoka',sans-serif;font-size:15px;
+    font-weight:500;cursor:pointer;box-shadow:var(--shadow);
+  }
+  .go-practice:hover{background:var(--teal-dark);}
+
+  /* question card shared */
+  .qcard{background:var(--paper);border:1px solid var(--line);border-radius:var(--radius);
+    padding:22px 22px 20px;box-shadow:var(--shadow);}
+  .qmeta{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:var(--ink-soft);margin-bottom:10px;font-weight:600;}
+  .qtext{font-size:17px;font-weight:800;margin:0 0 18px;}
+  .options{display:flex;flex-direction:column;gap:9px;}
+  .opt{
+    display:flex;align-items:center;gap:12px;text-align:left;
+    padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:#fff;
+    cursor:pointer;font-size:14.5px;font-family:inherit;color:var(--ink);transition:border-color .12s ease, background .12s ease;
+  }
+  .opt:hover:not(.locked){border-color:var(--teal);background:var(--teal-pale);}
+  .opt-letter{
+    width:26px;height:26px;border-radius:50%;background:var(--bg);flex:none;
+    display:flex;align-items:center;justify-content:center;font-size:12.5px;font-weight:600;color:var(--ink-soft);
+  }
+  .opt.correct{border-color:var(--teal);background:var(--teal-pale);}
+  .opt.correct .opt-letter{background:var(--teal);color:#fff;}
+  .opt.wrong{border-color:var(--coral);background:var(--coral-pale);}
+  .opt.wrong .opt-letter{background:var(--coral);color:#fff;}
+  .opt.locked{cursor:default;}
+
+  .feedback{margin-top:16px;padding:14px 16px;border-radius:12px;font-size:14px;display:none;}
+  .feedback.show{display:block;}
+  .feedback.good{background:var(--teal-pale);color:var(--teal-dark);}
+  .feedback.bad{background:var(--coral-pale);color:#7A2E1B;}
+  .feedback b{font-weight:800;}
+
+  .qactions{display:flex;justify-content:flex-end;margin-top:18px;}
+  .btn{
+    appearance:none;border:1.5px solid var(--line);background:#fff;color:var(--ink);
+    padding:10px 20px;border-radius:11px;font-family:'Fredoka',sans-serif;font-weight:500;
+    font-size:14px;cursor:pointer;
+  }
+  .btn.primary{background:var(--teal);border-color:var(--teal);color:#fff;}
+  .btn.primary:hover{background:var(--teal-dark);border-color:var(--teal-dark);}
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn.amber{background:var(--amber);border-color:var(--amber);color:#fff;}
+  .btn.amber:hover{background:var(--amber-dark);border-color:var(--amber-dark);}
+
+  .progress-track{height:6px;background:var(--line);border-radius:4px;overflow:hidden;margin-bottom:20px;}
+  .progress-fill{height:100%;background:var(--teal);border-radius:4px;transition:width .3s ease;width:0;}
+
+  .practice-score{font-size:13px;color:var(--ink-soft);margin-bottom:16px;}
+
+  /* results */
+  .result-wrap{text-align:center;padding:12px 6px 4px;}
+  .grade-badge{
+    width:110px;height:110px;border-radius:50%;margin:0 auto 18px;
+    display:flex;align-items:center;justify-content:center;
+    box-shadow:var(--shadow);
+  }
+  .grade-num{font-size:52px;font-weight:600;color:#fff;}
+  .result-title{font-size:19px;font-weight:800;margin:0 0 6px;}
+  .result-sub{color:var(--ink-soft);font-size:14.5px;margin:0 0 26px;}
+  .stat-row{display:flex;gap:10px;justify-content:center;margin-bottom:26px;}
+  .stat{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:12px 18px;min-width:96px;}
+  .stat b{display:block;font-size:20px;font-family:'Fredoka',sans-serif;font-weight:600;}
+  .stat span{font-size:12px;color:var(--ink-soft);}
+
+  .review-item{
+    text-align:left;background:var(--paper);border:1px solid var(--line);border-radius:14px;
+    padding:16px 18px;margin-bottom:10px;
+  }
+  .review-item .rq{font-weight:800;font-size:14.5px;margin:0 0 8px;display:flex;gap:10px;}
+  .status-dot{width:20px;height:20px;border-radius:50%;flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px;}
+  .status-dot.ok{background:var(--teal);}
+  .status-dot.no{background:var(--coral);}
+  .status-dot svg{width:11px;height:11px;stroke:#fff;stroke-width:3;}
+  .review-item .ra{font-size:13.5px;color:var(--ink-soft);margin:0 0 4px;padding-left:30px;}
+  .review-item .ra b{color:var(--ink);}
+  .retry-row{display:flex;gap:10px;justify-content:center;margin-top:20px;}
+
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0;}
+
+  @media (max-width:480px){
+    .topic-body-inner{padding-left:18px;}
+    .stat-row{flex-wrap:wrap;}
+  }
+</style>
+</head>
+<body>
+<div class="app">
+
+  <header class="topbar">
+    <div class="logo">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M4 20V9a2 2 0 0 1 2-2h3"/><path d="M9 20v-5h6v5"/><path d="M15 20V9a2 2 0 0 0-2-2h-1"/><circle cx="12" cy="4" r="1.6"/>
+      </svg>
+    </div>
+    <div>
+      <p class="brand">Эргономика</p>
+      <p class="brand-sub">Технология · 5 класс</p>
+    </div>
+  </header>
+
+  <nav class="tabs">
+    <button class="nav-btn active" data-view="learn">Изучить</button>
+    <button class="nav-btn" data-view="practice">Тренировка</button>
+    <button class="nav-btn" data-view="test">Проверка знаний</button>
+  </nav>
+
+  <!-- LEARN -->
+  <section class="view active" id="view-learn">
+    <p class="lede">Прочитай короткие карточки по теме, потом потренируйся отвечать на вопросы без оценки, а в конце пройди проверку знаний и получи отметку.</p>
+    <div id="topics"></div>
+    <button class="go-practice" id="toPractice">Перейти к тренировке →</button>
+  </section>
+
+  <!-- PRACTICE -->
+  <section class="view" id="view-practice">
+    <p class="lede">Здесь можно тренироваться сколько угодно раз. Отметка не выставляется — только счётчик верных ответов.</p>
+    <p class="practice-score" id="practiceScore">Верно: 0 · Вопросов задано: 0</p>
+    <div class="qcard" id="practiceCard"></div>
+  </section>
+
+  <!-- TEST -->
+  <section class="view" id="view-test">
+    <div id="testIntro">
+      <p class="lede">Проверка состоит из 12 вопросов. За каждый вопрос можно выбрать только один ответ. В конце ты узнаешь свою отметку.</p>
+      <button class="go-practice" id="startTest">Начать проверку знаний</button>
+    </div>
+    <div id="testRunning" style="display:none;">
+      <div class="progress-track"><div class="progress-fill" id="testProgress"></div></div>
+      <div class="qcard" id="testCard"></div>
+    </div>
+    <div id="testResults" style="display:none;"></div>
+  </section>
+
+</div>
+
+<script>
+const topics = [
+  {
+    title: "Что такое эргономика",
+    icon: '<path d="M4 21V9a1 1 0 0 1 1-1h4v13"/><path d="M9 21V4h6v17"/><path d="M15 21V11h4a1 1 0 0 1 1 1v9"/>',
+    text: "Эргономика — это наука о том, как удобно, безопасно и правильно организовать рабочее место и труд человека.",
+    points: [
+      "Изучает, как расположить мебель, инструменты и свет, чтобы работать было легко.",
+      "Помогает не уставать и не портить здоровье во время работы.",
+      "Применяется дома, в мастерской, в классе и на любом рабочем месте."
+    ]
+  },
+  {
+    title: "Рабочее место",
+    icon: '<rect x="3" y="10" width="18" height="8" rx="1.5"/><path d="M7 10V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v4"/>',
+    text: "Рабочее место — это стол, стул и всё, что на нём находится во время работы.",
+    points: [
+      "На столе должно быть только то, что нужно для конкретной работы.",
+      "Часто используемые предметы кладут ближе к себе, редкие — подальше.",
+      "После работы место убирают: инструменты — на свои места."
+    ]
+  },
+  {
+    title: "Правильная поза за столом",
+    icon: '<circle cx="12" cy="5" r="2"/><path d="M12 7v6l-3 8"/><path d="M12 13l3 8"/><path d="M8 11h8"/>',
+    text: "Осанка во время работы влияет на здоровье позвоночника и зрения.",
+    points: [
+      "Спина прямая, опирается на спинку стула.",
+      "Ноги стоят на полу, согнуты в коленях под прямым углом.",
+      "Расстояние от глаз до тетради или книги — 30–35 см.",
+      "Оба предплечья лежат на столе, плечи не подняты."
+    ]
+  },
+  {
+    title: "Освещение",
+    icon: '<circle cx="12" cy="12" r="4"/><path d="M12 3v2M12 19v2M4 12H2M22 12h-2M5 5l1.5 1.5M18.5 18.5 20 20M5 19l1.5-1.5M18.5 5.5 20 4"/>',
+    text: "Правильный свет защищает зрение и помогает не уставать глазам.",
+    points: [
+      "Свет должен падать спереди-слева для тех, кто пишет правой рукой.",
+      "Нельзя работать в полной темноте или при слишком ярком свете, бьющем в глаза.",
+      "Лучше сочетать дневной свет и настольную лампу."
+    ]
+  },
+  {
+    title: "Расположение инструментов",
+    icon: '<path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.1-3.1a4 4 0 0 1-5.7 5.7L6.3 20.7a2 2 0 0 1-2.8-2.8L12.3 9a4 4 0 0 1 5.7-5.7z"/>',
+    text: "Каждый инструмент и материал должны иметь своё постоянное место.",
+    points: [
+      "Острые и колющие предметы (ножницы, иглы, циркуль) хранят отдельно и убирают в чехлы или футляры.",
+      "Инструменты, которыми пользуются чаще, кладут ближе к рабочей руке.",
+      "Порядок на столе экономит время и делает работу безопаснее."
+    ]
+  },
+  {
+    title: "Режим труда и отдыха",
+    icon: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+    text: "Даже удобное рабочее место не заменяет отдых для тела и глаз.",
+    points: [
+      "Каждые 20–30 минут стоит делать короткий перерыв.",
+      "Полезно вставать, потягиваться и давать отдых глазам.",
+      "Чередование труда и отдыха сохраняет здоровье и работоспособность."
+    ]
+  }
+];
+
+const questions = [
+  {q:"Что такое эргономика?", opts:["Наука об удобной и безопасной организации труда и рабочего места","Наука о выращивании растений","Раздел математики о геометрических фигурах","Учение о правильном питании"], correct:0,
+   why:"Эргономика изучает, как правильно и удобно организовать труд и рабочее место человека."},
+  {q:"Какая главная цель эргономики на рабочем месте?", opts:["Сделать рабочее место как можно дороже","Сделать труд удобным, быстрым и безопасным для здоровья","Заставить человека работать без перерывов","Украсить комнату"], correct:1,
+   why:"Эргономика помогает работать удобно, эффективно и без вреда для здоровья."},
+  {q:"Как нужно сидеть за столом при письме или чтении?", opts:["Сутулясь, облокотившись на один локоть","Прямо, опираясь спиной на спинку стула, ноги на полу","Развалившись, положив ноги на стол","Наклонившись очень близко к тетради"], correct:1,
+   why:"Правильная осанка — прямая спина с опорой на спинку стула и ноги, стоящие на полу."},
+  {q:"Каким должно быть расстояние от глаз до тетради при письме?", opts:["10–15 см","30–35 см","50–60 см","Около 1 метра"], correct:1,
+   why:"Оптимальное расстояние для сохранения зрения — 30–35 см."},
+  {q:"Откуда должен падать свет, если человек пишет правой рукой?", opts:["Спереди-слева","Справа","Строго сзади","Прямо в глаза сверху"], correct:0,
+   why:"Свет спереди-слева не создаёт тень от пишущей руки."},
+  {q:"Где на столе стоит держать инструменты, которыми пользуются чаще всего?", opts:["Как можно дальше, чтобы не мешали","Ближе к работающему, под рукой","На полу под столом","В другой комнате"], correct:1,
+   why:"Часто нужные предметы должны быть под рукой — так работа идёт быстрее и без лишних движений."},
+  {q:"Что стоит делать каждые 20–30 минут работы за столом?", opts:["Ничего не менять","Сделать короткую разминку или дать отдых глазам","Лечь спать","Увеличить яркость света до максимума"], correct:1,
+   why:"Короткие перерывы снимают напряжение с глаз, спины и рук."},
+  {q:"Как нужно подобрать высоту стула?", opts:["Чтобы ноги свободно доставали до пола, колени под прямым углом","Чтобы ноги свисали, не доставая пола","Чтобы колени были выше стола","Высота стула не имеет значения"], correct:0,
+   why:"Ноги должны опираться на пол, а колени — быть согнуты примерно под прямым углом."},
+  {q:"Почему острые и колющие инструменты нужно убирать в чехлы и хранить в определённом месте?", opts:["Просто для красоты", "Для безопасности и чтобы быстро находить нужный инструмент","Чтобы ими никто не мог пользоваться","Это не имеет значения"], correct:1,
+   why:"Порядок хранения острых предметов защищает от травм и экономит время на поиск."},
+  {q:"Какой из вариантов НЕ относится к организации рабочего места?", opts:["Освещение стола","Удобная высота стула","Погода за окном","Расположение инструментов"], correct:2,
+   why:"Погода за окном не влияет на организацию рабочего места — это внешний фактор."},
+  {q:"Как правильно расположить тетрадь при письме?", opts:["Строго вертикально, ребром к себе","Сбоку от стола, за пределами рабочей зоны","С небольшим наклоном, чтобы удобно было видеть строку","Как угодно, это не важно"], correct:2,
+   why:"Тетрадь кладут с небольшим наклоном — так руке удобнее вести строку."},
+  {q:"Что помогает сохранить здоровье и работоспособность при долгой работе?", opts:["Работа без перерывов длительное время","Правильная организация места и чередование труда с отдыхом","Слишком тусклый или слишком яркий свет","Работа в неудобной, скрюченной позе"], correct:1,
+   why:"Правильно организованное место и разумный режим труда и отдыха берегут здоровье."}
+];
+
+function shuffle(arr){
+  const a=[...arr];
+  for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}
+  return a;
+}
+
+// ---------- Navigation ----------
+const navBtns = document.querySelectorAll('.nav-btn');
+const views = { learn: document.getElementById('view-learn'), practice: document.getElementById('view-practice'), test: document.getElementById('view-test') };
+function showView(name){
+  navBtns.forEach(b=>b.classList.toggle('active', b.dataset.view===name));
+  Object.entries(views).forEach(([k,el])=>el.classList.toggle('active', k===name));
+}
+navBtns.forEach(b=>b.addEventListener('click', ()=>showView(b.dataset.view)));
+document.getElementById('toPractice').addEventListener('click', ()=>showView('practice'));
+
+// ---------- Learn ----------
+const topicsEl = document.getElementById('topics');
+topics.forEach((t,i)=>{
+  const div = document.createElement('div');
+  div.className = 'topic';
+  div.innerHTML = `
+    <div class="topic-head">
+      <div class="topic-ico"><svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8">${t.icon}</svg></div>
+      <div class="topic-title">${t.title}</div>
+      <div class="chev"></div>
+    </div>
+    <div class="topic-body"><div class="topic-body-inner">
+      <p style="margin:10px 0 0;">${t.text}</p>
+      <ul>${t.points.map(p=>`<li>${p}</li>`).join('')}</ul>
+    </div></div>`;
+  div.querySelector('.topic-head').addEventListener('click', ()=>{
+    const wasOpen = div.classList.contains('open');
+    document.querySelectorAll('.topic.open').forEach(o=>o.classList.remove('open'));
+    if(!wasOpen) div.classList.add('open');
+  });
+  topicsEl.appendChild(div);
+});
+document.querySelector('.topic').classList.add('open');
+
+// ---------- Practice (unlimited, ungraded) ----------
+let practiceCorrect = 0, practiceTotal = 0, practicePool = shuffle(questions), practiceIdx = 0;
+const practiceCard = document.getElementById('practiceCard');
+const practiceScoreEl = document.getElementById('practiceScore');
+
+function renderPractice(){
+  if(practiceIdx >= practicePool.length){ practicePool = shuffle(questions); practiceIdx = 0; }
+  const item = practicePool[practiceIdx];
+  const order = shuffle(item.opts.map((text,i)=>({text,i})));
+  practiceCard.innerHTML = `
+    <p class="qtext">${item.q}</p>
+    <div class="options">${order.map((o,k)=>`<button class="opt" data-i="${o.i}"><span class="opt-letter">${String.fromCharCode(65+k)}</span><span>${o.text}</span></button>`).join('')}</div>
+    <div class="feedback" id="pFeedback"></div>
+    <div class="qactions"><button class="btn primary" id="pNext" disabled>Следующий вопрос →</button></div>
+  `;
+  const opts = practiceCard.querySelectorAll('.opt');
+  const fb = practiceCard.querySelector('#pFeedback');
+  const nextBtn = practiceCard.querySelector('#pNext');
+  opts.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(practiceCard.dataset.locked) return;
+      practiceCard.dataset.locked = "1";
+      const chosen = parseInt(btn.dataset.i,10);
+      practiceTotal++;
+      const isCorrect = chosen === item.correct;
+      if(isCorrect) practiceCorrect++;
+      opts.forEach(o=>{
+        o.classList.add('locked');
+        const oi = parseInt(o.dataset.i,10);
+        if(oi === item.correct) o.classList.add('correct');
+        else if(oi === chosen) o.classList.add('wrong');
+      });
+      fb.classList.add('show', isCorrect ? 'good':'bad');
+      fb.innerHTML = `<b>${isCorrect ? 'Верно.' : 'Неверно.'}</b> ${item.why}`;
+      nextBtn.disabled = false;
+      practiceScoreEl.textContent = `Верно: ${practiceCorrect} · Вопросов задано: ${practiceTotal}`;
+    });
+  });
+  nextBtn.addEventListener('click', ()=>{
+    practiceIdx++;
+    delete practiceCard.dataset.locked;
+    renderPractice();
+  });
+}
+renderPractice();
+
+// ---------- Test (graded, 12 fixed questions) ----------
+let testOrder = [], testIdx = 0, testAnswers = [];
+const testCard = document.getElementById('testCard');
+const testProgress = document.getElementById('testProgress');
+
+document.getElementById('startTest').addEventListener('click', ()=>{
+  testOrder = shuffle(questions);
+  testIdx = 0;
+  testAnswers = [];
+  document.getElementById('testIntro').style.display = 'none';
+  document.getElementById('testResults').style.display = 'none';
+  document.getElementById('testRunning').style.display = 'block';
+  renderTestQuestion();
+});
+
+function renderTestQuestion(){
+  const item = testOrder[testIdx];
+  testProgress.style.width = `${(testIdx / testOrder.length) * 100}%`;
+  const order = shuffle(item.opts.map((text,i)=>({text,i})));
+  testCard.innerHTML = `
+    <div class="qmeta"><span>Вопрос ${testIdx+1} из ${testOrder.length}</span></div>
+    <p class="qtext">${item.q}</p>
+    <div class="options">${order.map((o,k)=>`<button class="opt" data-i="${o.i}"><span class="opt-letter">${String.fromCharCode(65+k)}</span><span>${o.text}</span></button>`).join('')}</div>
+    <div class="feedback" id="tFeedback"></div>
+    <div class="qactions"><button class="btn primary" id="tNext" disabled>${testIdx === testOrder.length-1 ? 'Завершить проверку' : 'Следующий вопрос →'}</button></div>
+  `;
+  const opts = testCard.querySelectorAll('.opt');
+  const fb = testCard.querySelector('#tFeedback');
+  const nextBtn = testCard.querySelector('#tNext');
+  opts.forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      if(testCard.dataset.locked) return;
+      testCard.dataset.locked = "1";
+      const chosen = parseInt(btn.dataset.i,10);
+      const isCorrect = chosen === item.correct;
+      testAnswers.push({q:item.q, chosenText:item.opts[chosen], correctText:item.opts[item.correct], isCorrect, why:item.why});
+      opts.forEach(o=>{
+        o.classList.add('locked');
+        const oi = parseInt(o.dataset.i,10);
+        if(oi === item.correct) o.classList.add('correct');
+        else if(oi === chosen) o.classList.add('wrong');
+      });
+      fb.classList.add('show', isCorrect ? 'good':'bad');
+      fb.innerHTML = `<b>${isCorrect ? 'Верно.' : 'Неверно.'}</b> ${item.why}`;
+      nextBtn.disabled = false;
+    });
+  });
+  nextBtn.addEventListener('click', ()=>{
+    delete testCard.dataset.locked;
+    if(testIdx === testOrder.length-1){
+      finishTest();
+    } else {
+      testIdx++;
+      renderTestQuestion();
+    }
+  });
+}
+
+function gradeFor(pct){
+  if(pct >= 90) return {num:5, label:"Отлично", color:"var(--teal)"};
+  if(pct >= 70) return {num:4, label:"Хорошо", color:"var(--teal)"};
+  if(pct >= 50) return {num:3, label:"Удовлетворительно", color:"var(--amber)"};
+  return {num:2, label:"Неудовлетворительно", color:"var(--coral)"};
+}
+
+function finishTest(){
+  testProgress.style.width = '100%';
+  document.getElementById('testRunning').style.display = 'none';
+  const correctCount = testAnswers.filter(a=>a.isCorrect).length;
+  const total = testAnswers.length;
+  const pct = Math.round((correctCount/total)*100);
+  const g = gradeFor(pct);
+  const resultsEl = document.getElementById('testResults');
+  resultsEl.style.display = 'block';
+  resultsEl.innerHTML = `
+    <div class="result-wrap">
+      <div class="grade-badge" style="background:${g.color};"><span class="grade-num">${g.num}</span></div>
+      <p class="result-title">${g.label}</p>
+      <p class="result-sub">Ты ответил верно на ${correctCount} из ${total} вопросов (${pct}%)</p>
+      <div class="stat-row">
+        <div class="stat"><b>${correctCount}</b><span>верных</span></div>
+        <div class="stat"><b>${total-correctCount}</b><span>неверных</span></div>
+        <div class="stat"><b>${pct}%</b><span>результат</span></div>
+      </div>
+    </div>
+    <div id="reviewList"></div>
+    <div class="retry-row">
+      <button class="btn" id="backLearn">К теории</button>
+      <button class="btn amber" id="retryTest">Пройти ещё раз</button>
+    </div>
+  `;
+  const reviewList = resultsEl.querySelector('#reviewList');
+  testAnswers.forEach((a,idx)=>{
+    const div = document.createElement('div');
+    div.className = 'review-item';
+    div.innerHTML = `
+      <p class="rq"><span class="status-dot ${a.isCorrect?'ok':'no'}">${a.isCorrect ? '<svg viewBox="0 0 24 24" fill="none" stroke="#fff"><polyline points="4 12 9 17 20 6"/></svg>' : '<svg viewBox="0 0 24 24" fill="none" stroke="#fff"><line x1="5" y1="5" x2="19" y2="19"/><line x1="19" y1="5" x2="5" y2="19"/></svg>'}</span><span>${idx+1}. ${a.q}</span></p>
+      <p class="ra">Твой ответ: <b>${a.chosenText}</b></p>
+      ${a.isCorrect ? '' : `<p class="ra">Правильный ответ: <b>${a.correctText}</b></p>`}
+      <p class="ra">${a.why}</p>
+    `;
+    reviewList.appendChild(div);
+  });
+  resultsEl.querySelector('#backLearn').addEventListener('click', ()=>{ showView('learn'); });
+  resultsEl.querySelector('#retryTest').addEventListener('click', ()=>{
+    document.getElementById('testIntro').style.display = 'block';
+    resultsEl.style.display = 'none';
+  });
+}
+</script>
+</body>
+</html>
