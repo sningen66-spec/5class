@@ -1,0 +1,722 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Найди пару: Информация вокруг нас</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --pink:#FF6B9D;
+    --orange:#FF9F45;
+    --yellow:#FFD93D;
+    --green:#6BCB77;
+    --teal:#4ECDC4;
+    --purple:#A66DFF;
+    --blue:#4D96FF;
+    --ink:#2E2145;
+    --card-back-1:#FF9F45;
+    --card-back-2:#FFB347;
+    --white:#FFFDF9;
+    --shadow: 0 8px 0 rgba(46,33,69,0.25);
+  }
+
+  *{box-sizing:border-box;}
+
+  body{
+    margin:0;
+    min-height:100vh;
+    font-family:'Nunito', sans-serif;
+    background: radial-gradient(circle at 15% 10%, #FFE8B0 0%, transparent 45%),
+                radial-gradient(circle at 85% 90%, #C9F7EF 0%, transparent 50%),
+                linear-gradient(160deg, #6EE7D8 0%, #6FB1FF 45%, #B48CFF 100%);
+    background-attachment: fixed;
+    color: var(--ink);
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    padding: 16px;
+    overflow-x:hidden;
+  }
+
+  /* --- декоративные "облака-кляксы" фона --- */
+  .blob{
+    position:fixed;
+    border-radius:50%;
+    filter:blur(2px);
+    opacity:0.55;
+    z-index:0;
+    animation: float 9s ease-in-out infinite;
+  }
+  .blob1{width:160px;height:160px;background:var(--yellow);top:6%;left:4%;animation-delay:0s;}
+  .blob2{width:110px;height:110px;background:var(--pink);top:70%;left:85%;animation-delay:1.5s;}
+  .blob3{width:90px;height:90px;background:var(--green);top:80%;left:8%;animation-delay:3s;}
+  @keyframes float{
+    0%,100%{transform:translateY(0) rotate(0deg);}
+    50%{transform:translateY(-22px) rotate(8deg);}
+  }
+
+  h1{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:800;
+    font-size: clamp(1.4rem, 4vw, 2.4rem);
+    text-align:center;
+    color:var(--ink);
+    text-shadow: 3px 3px 0 rgba(255,255,255,0.6);
+    margin: 6px 0 2px;
+    z-index:1;
+  }
+  .subtitle{
+    font-weight:700;
+    color:#4a3c66;
+    margin-bottom:14px;
+    text-align:center;
+    font-size: clamp(0.85rem, 2vw, 1.05rem);
+    z-index:1;
+  }
+
+  .wrap{
+    width:100%;
+    max-width: 900px;
+    z-index:1;
+  }
+
+  /* ---------- Верхняя панель с показателями ---------- */
+  .hud{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    justify-content:space-between;
+    align-items:center;
+    background: rgba(255,255,255,0.75);
+    backdrop-filter: blur(6px);
+    border-radius: 22px;
+    padding: 10px 16px;
+    box-shadow: var(--shadow);
+    border: 3px solid #fff;
+    margin-bottom: 14px;
+  }
+  .hud-item{
+    display:flex;
+    align-items:center;
+    gap:6px;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: clamp(0.9rem, 2.2vw, 1.15rem);
+  }
+  .hud-item .icon{font-size:1.3em;}
+  #timer.low-time{
+    color:#E63946;
+    animation: pulse 0.8s infinite;
+  }
+  @keyframes pulse{
+    0%,100%{transform:scale(1);}
+    50%{transform:scale(1.15);}
+  }
+
+  .progress-outer{
+    width:100%;
+    height:16px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 12px;
+    overflow:hidden;
+    border: 3px solid #fff;
+    box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
+    margin-bottom: 16px;
+  }
+  .progress-inner{
+    height:100%;
+    width:0%;
+    background: linear-gradient(90deg, var(--green), var(--teal));
+    border-radius: 12px;
+    transition: width 0.5s ease;
+  }
+
+  /* ---------- Сетка карточек ---------- */
+  .board{
+    display:grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 10px;
+    perspective: 1000px;
+  }
+  @media (max-width: 700px){
+    .board{ grid-template-columns: repeat(4, 1fr); }
+  }
+  @media (max-width: 460px){
+    .board{ grid-template-columns: repeat(3, 1fr); gap:7px;}
+  }
+
+  .card{
+    position:relative;
+    aspect-ratio: 3/4;
+    cursor:pointer;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(.2,.9,.3,1.2);
+  }
+  .card.flipped{ transform: rotateY(180deg); }
+  .card.matched{
+    transform: rotateY(180deg);
+    animation: pop 0.5s ease;
+  }
+  @keyframes pop{
+    0%{ transform: rotateY(180deg) scale(1);}
+    50%{ transform: rotateY(180deg) scale(1.12);}
+    100%{ transform: rotateY(180deg) scale(1);}
+  }
+  .card.shake{ animation: shake 0.45s; }
+  @keyframes shake{
+    0%,100%{ transform: rotateY(180deg) translateX(0); }
+    25%{ transform: rotateY(180deg) translateX(-8px); }
+    75%{ transform: rotateY(180deg) translateX(8px); }
+  }
+
+  .face{
+    position:absolute;
+    inset:0;
+    border-radius: 16px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    backface-visibility: hidden;
+    padding: 6px;
+    text-align:center;
+    border: 3px solid #fff;
+  }
+  .face-back{
+    background: repeating-linear-gradient(45deg, var(--card-back-1), var(--card-back-1) 10px, var(--card-back-2) 10px, var(--card-back-2) 20px);
+    box-shadow: var(--shadow);
+  }
+  .face-back::after{
+    content:"?";
+    font-family:'Baloo 2', sans-serif;
+    font-size: clamp(1.6rem, 5vw, 2.4rem);
+    font-weight:800;
+    color:#fff;
+    text-shadow: 2px 2px 0 rgba(0,0,0,0.15);
+  }
+  .face-front{
+    background: var(--white);
+    transform: rotateY(180deg);
+    box-shadow: 0 4px 0 rgba(46,33,69,0.15);
+  }
+  .face-front .emoji{
+    font-size: clamp(1.5rem, 5vw, 2.1rem);
+    line-height:1;
+    margin-bottom:4px;
+  }
+  .face-front .txt{
+    font-family:'Nunito', sans-serif;
+    font-weight:800;
+    font-size: clamp(0.6rem, 1.8vw, 0.82rem);
+    color: var(--ink);
+    line-height:1.15;
+  }
+  .face-front.type-card{
+    background: linear-gradient(160deg, #fff, #F1E9FF);
+  }
+  .face-front.type-card .txt{ color:#5B3E9E; }
+
+  .card.matched .face-front{
+    filter: saturate(1.3);
+  }
+
+  /* ---------- Плашка с подсказкой обратной связи ---------- */
+  #feedback{
+    min-height: 30px;
+    text-align:center;
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: clamp(0.9rem, 2.3vw, 1.15rem);
+    margin-top: 12px;
+    color: var(--ink);
+    z-index:1;
+  }
+
+  /* ---------- Оверлеи (старт / пауза / конец) ---------- */
+  .overlay{
+    position:fixed;
+    inset:0;
+    background: rgba(46,33,69,0.55);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    z-index: 20;
+    padding: 16px;
+  }
+  .overlay.hidden{ display:none; }
+  .panel{
+    background: var(--white);
+    border-radius: 26px;
+    padding: 28px 24px;
+    max-width: 460px;
+    width:100%;
+    text-align:center;
+    box-shadow: 0 12px 0 rgba(46,33,69,0.3);
+    border: 4px solid #fff;
+  }
+  .panel h2{
+    font-family:'Baloo 2', sans-serif;
+    font-size: clamp(1.3rem, 4vw, 1.8rem);
+    color: var(--ink);
+    margin-top:0;
+  }
+  .panel p{
+    font-size: 0.98rem;
+    line-height:1.5;
+    color:#4a3c66;
+  }
+  .rules{
+    text-align:left;
+    background:#F6F2FF;
+    border-radius:16px;
+    padding: 12px 16px;
+    margin: 14px 0;
+    font-size:0.92rem;
+  }
+  .rules li{ margin-bottom:6px; }
+
+  .btn{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    font-size: 1.05rem;
+    color:#fff;
+    background: linear-gradient(180deg, var(--teal), #33B3AA);
+    border:none;
+    border-radius: 16px;
+    padding: 12px 28px;
+    cursor:pointer;
+    box-shadow: 0 5px 0 #2C8F88;
+    transition: transform 0.1s ease, box-shadow 0.1s ease;
+  }
+  .btn:active{
+    transform: translateY(4px);
+    box-shadow: 0 1px 0 #2C8F88;
+  }
+  .btn.secondary{
+    background: linear-gradient(180deg, var(--purple), #7C4FE0);
+    box-shadow: 0 5px 0 #5E36B8;
+    margin-left:8px;
+  }
+  .btn.secondary:active{ box-shadow: 0 1px 0 #5E36B8; }
+
+  .result-emoji{ font-size: 3.4rem; margin-bottom:6px; }
+  .stat-row{
+    display:flex;
+    justify-content:space-around;
+    margin: 16px 0;
+    font-family:'Baloo 2', sans-serif;
+  }
+  .stat-row div{ font-size:0.85rem; color:#7a6a99; }
+  .stat-row strong{ display:block; font-size:1.3rem; color:var(--ink); }
+
+  footer{
+    margin-top: 18px;
+    font-size:0.75rem;
+    color: rgba(46,33,69,0.6);
+    text-align:center;
+    z-index:1;
+  }
+</style>
+</head>
+<body>
+
+<div class="blob blob1"></div>
+<div class="blob blob2"></div>
+<div class="blob blob3"></div>
+
+<h1>🔎 Найди пару: Информация вокруг нас</h1>
+<p class="subtitle">Соедини пример из жизни с видом информации, к которому он относится</p>
+
+<div class="wrap">
+  <div class="hud">
+    <div class="hud-item">⏱️ <span id="timer">10:00</span></div>
+    <div class="hud-item">⭐ Очки: <span id="score">0</span></div>
+    <div class="hud-item">🧩 Пары: <span id="pairsInfo">0/10</span></div>
+  </div>
+
+  <div class="progress-outer"><div class="progress-inner" id="progressBar"></div></div>
+
+  <div class="board" id="board"></div>
+
+  <div id="feedback"></div>
+</div>
+
+<footer>Образовательная игра · Тема «Виды информации» · 5–7 классы</footer>
+
+<!-- Стартовый экран -->
+<div class="overlay" id="startOverlay">
+  <div class="panel">
+    <div class="result-emoji">🎮</div>
+    <h2>Готов проверить себя?</h2>
+    <p>В этой игре нужно находить пары: пример из жизни и вид информации (текстовая, звуковая, числовая, графическая или видеоинформация), к которому этот пример относится.</p>
+    <ul class="rules">
+      <li>👀 Сначала на 10 секунд откроются все карточки — запоминай, где что лежит!</li>
+      <li>🖱️ Затем карточки перевернутся, и нужно будет открывать по две за ход.</li>
+      <li>✅ Если пример и вид информации совпали — пара останется открытой.</li>
+      <li>❌ Если не совпали — карточки перевернутся обратно, а несколько очков спишется.</li>
+      <li>⏱️ На игру даётся 10 минут — успей найти все 10 пар!</li>
+    </ul>
+    <button class="btn" id="startBtn">Начать игру</button>
+  </div>
+</div>
+
+<!-- Финальный экран -->
+<div class="overlay hidden" id="endOverlay">
+  <div class="panel">
+    <div class="result-emoji" id="endEmoji">🏆</div>
+    <h2 id="endTitle">Победа!</h2>
+    <p id="endText"></p>
+    <div class="stat-row">
+      <div><strong id="finalScore">0</strong>Очки</div>
+      <div><strong id="finalPairs">0/10</strong>Пары</div>
+      <div><strong id="finalBest">0</strong>Рекорд</div>
+    </div>
+    <button class="btn" id="restartBtn">Играть ещё раз</button>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   ОБРАЗОВАТЕЛЬНАЯ ИГРА "НАЙДИ ПАРУ": ВИДЫ ИНФОРМАЦИИ
+   Тема: различение видов информации по форме представления
+   ============================================================ */
+
+// ---------- 1. Учебные данные -----------------------------------------
+// Пять видов информации, у каждого — своя карточка-категория (2 шт.)
+// и по два жизненных примера, относящихся к этому виду.
+const INFO_TYPES = [
+  {
+    type: 'text',
+    label: 'Текстовая информация',
+    typeEmoji: '📝',
+    examples: [
+      { text: 'Страница книги сказок', emoji: '📖' },
+      { text: 'СМС-сообщение от друга', emoji: '💬' }
+    ]
+  },
+  {
+    type: 'sound',
+    label: 'Звуковая информация',
+    typeEmoji: '🔊',
+    examples: [
+      { text: 'Гудок автомобиля', emoji: '📯' },
+      { text: 'Пение птиц в лесу', emoji: '🐦' }
+    ]
+  },
+  {
+    type: 'number',
+    label: 'Числовая информация',
+    typeEmoji: '🔢',
+    examples: [
+      { text: 'Таблица умножения', emoji: '✖️' },
+      { text: 'Счёт матча — 2:1', emoji: '⚽' }
+    ]
+  },
+  {
+    type: 'video',
+    label: 'Видеоинформация',
+    typeEmoji: '🎥',
+    examples: [
+      { text: 'Запись футбольного матча', emoji: '📹' },
+      { text: 'Видеоклип любимой песни', emoji: '🎬' }
+    ]
+  },
+  {
+    type: 'graphic',
+    label: 'Графическая информация',
+    typeEmoji: '🖼️',
+    examples: [
+      { text: 'Рисунок радуги', emoji: '🌈' },
+      { text: 'Схема кабинета информатики', emoji: '🗺️' }
+    ]
+  }
+];
+
+// ---------- 2. Игровые настройки ---------------------------------------
+const TOTAL_PAIRS = 10;         // 5 видов × 2 примера = 10 пар (пример + карточка-вид)
+const GAME_SECONDS = 10 * 60;   // 10 минут на основную игру
+const PREVIEW_SECONDS = 10;     // 10 секунд на предварительный показ всех карточек
+const POINTS_PER_MATCH = 100;
+const PENALTY_PER_MISS = 10;
+const STORAGE_KEY = 'infoMemoryGame_bestScore';
+
+// ---------- 3. Состояние игры -------------------------------------------
+let cards = [];          // все карточки на поле
+let flippedCards = [];   // сейчас открытые (максимум 2)
+let matchedPairs = 0;
+let score = 0;
+let secondsLeft = GAME_SECONDS;
+let timerHandle = null;
+let previewHandle = null;
+let boardLocked = false; // блокируем клики во время проверки пары / предпросмотра
+let gameActive = false;
+
+// ---------- 4. DOM-элементы ---------------------------------------------
+const boardEl = document.getElementById('board');
+const timerEl = document.getElementById('timer');
+const scoreEl = document.getElementById('score');
+const pairsInfoEl = document.getElementById('pairsInfo');
+const progressBar = document.getElementById('progressBar');
+const feedbackEl = document.getElementById('feedback');
+const startOverlay = document.getElementById('startOverlay');
+const endOverlay = document.getElementById('endOverlay');
+
+// ---------- 5. Подготовка колоды карточек --------------------------------
+function buildDeck(){
+  const deck = [];
+  INFO_TYPES.forEach(info => {
+    // Карточка примера (х2 на каждый вид)
+    info.examples.forEach(ex => {
+      deck.push({
+        kind: 'example',
+        type: info.type,
+        emoji: ex.emoji,
+        text: ex.text
+      });
+    });
+    // Карточка вида информации — тоже дублируется дважды,
+    // чтобы каждый пример мог найти себе пару этого вида.
+    for (let i = 0; i < info.examples.length; i++){
+      deck.push({
+        kind: 'label',
+        type: info.type,
+        emoji: info.typeEmoji,
+        text: info.label
+      });
+    }
+  });
+  return shuffle(deck);
+}
+
+function shuffle(arr){
+  const a = arr.slice();
+  for (let i = a.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// ---------- 6. Отрисовка поля --------------------------------------------
+function renderBoard(){
+  boardEl.innerHTML = '';
+  cards.forEach((cardData, index) => {
+    const cardEl = document.createElement('div');
+    cardEl.className = 'card';
+    cardEl.dataset.index = index;
+
+    const back = document.createElement('div');
+    back.className = 'face face-back';
+
+    const front = document.createElement('div');
+    front.className = 'face face-front' + (cardData.kind === 'label' ? ' type-card' : '');
+    front.innerHTML = `<div class="emoji">${cardData.emoji}</div><div class="txt">${cardData.text}</div>`;
+
+    cardEl.appendChild(back);
+    cardEl.appendChild(front);
+    cardEl.addEventListener('click', () => onCardClick(index, cardEl));
+
+    boardEl.appendChild(cardEl);
+    cardData.el = cardEl;
+  });
+}
+
+// ---------- 7. Логика клика по карточке -----------------------------------
+function onCardClick(index, cardEl){
+  if (!gameActive || boardLocked) return;
+  const cardData = cards[index];
+  if (cardData.matched || cardEl.classList.contains('flipped')) return;
+  if (flippedCards.length >= 2) return;
+
+  cardEl.classList.add('flipped');
+  flippedCards.push({ index, cardEl, cardData });
+
+  if (flippedCards.length === 2){
+    boardLocked = true;
+    setTimeout(checkMatch, 650);
+  }
+}
+
+function checkMatch(){
+  const [first, second] = flippedCards;
+
+  // Пара считается верной, если совпадает "вид информации"
+  // и это не две одинаковые по роли карточки (пример+пример или вид+вид не подходят, нужен пример + его вид)
+  const isSameType = first.cardData.type === second.cardData.type;
+  const isDifferentKind = first.cardData.kind !== second.cardData.kind;
+
+  if (isSameType && isDifferentKind){
+    // Верная пара
+    first.cardEl.classList.add('matched');
+    second.cardEl.classList.add('matched');
+    first.cardData.matched = true;
+    second.cardData.matched = true;
+
+    matchedPairs++;
+    score += POINTS_PER_MATCH;
+    showFeedback(`✅ Отлично! «${first.cardData.text}» — это ${labelForType(first.cardData.type)}!`, true);
+    updateHud();
+
+    if (matchedPairs >= TOTAL_PAIRS){
+      setTimeout(() => endGame(true), 500);
+    }
+  } else {
+    // Неверная пара
+    first.cardEl.classList.add('shake');
+    second.cardEl.classList.add('shake');
+    score = Math.max(0, score - PENALTY_PER_MISS);
+    showFeedback('❌ Не совпало. Подумай ещё раз!', false);
+
+    setTimeout(() => {
+      first.cardEl.classList.remove('flipped', 'shake');
+      second.cardEl.classList.remove('flipped', 'shake');
+    }, 500);
+
+    updateHud();
+  }
+
+  flippedCards = [];
+  boardLocked = false;
+}
+
+function labelForType(type){
+  const found = INFO_TYPES.find(t => t.type === type);
+  return found ? found.label.toLowerCase() : '';
+}
+
+function showFeedback(text, positive){
+  feedbackEl.textContent = text;
+  feedbackEl.style.color = positive ? '#2E8B57' : '#E63946';
+  clearTimeout(showFeedback._t);
+  showFeedback._t = setTimeout(() => { feedbackEl.textContent = ''; }, 1800);
+}
+
+// ---------- 8. HUD (очки, жизни, таймер, прогресс) ------------------------
+function updateHud(){
+  scoreEl.textContent = score;
+  pairsInfoEl.textContent = `${matchedPairs}/${TOTAL_PAIRS}`;
+  progressBar.style.width = `${(matchedPairs / TOTAL_PAIRS) * 100}%`;
+}
+
+function formatTime(totalSeconds){
+  const m = Math.floor(totalSeconds / 60).toString().padStart(2, '0');
+  const s = (totalSeconds % 60).toString().padStart(2, '0');
+  return `${m}:${s}`;
+}
+
+function tickTimer(){
+  secondsLeft--;
+  timerEl.textContent = formatTime(Math.max(secondsLeft, 0));
+  timerEl.classList.toggle('low-time', secondsLeft <= 30 && secondsLeft > 0);
+
+  if (secondsLeft <= 0){
+    clearInterval(timerHandle);
+    endGame(false);
+  }
+}
+
+// ---------- 9. Начало / конец игры ----------------------------------------
+function startGame(){
+  cards = buildDeck();
+  matchedPairs = 0;
+  score = 0;
+  secondsLeft = GAME_SECONDS;
+  flippedCards = [];
+  boardLocked = true;   // на время предпросмотра клики запрещены
+  gameActive = false;   // основной раунд ещё не начался
+
+  timerEl.classList.remove('low-time');
+  renderBoard();
+  updateHud();
+
+  startOverlay.classList.add('hidden');
+  endOverlay.classList.add('hidden');
+  feedbackEl.textContent = '';
+
+  clearInterval(timerHandle);
+  clearInterval(previewHandle);
+
+  runPreviewPhase();
+}
+
+// Показываем все карточки открытыми на PREVIEW_SECONDS секунд, чтобы дети
+// могли запомнить расположение примеров и видов информации.
+function runPreviewPhase(){
+  // открываем все карточки лицом вверх
+  cards.forEach(cardData => cardData.el.classList.add('flipped'));
+
+  let previewLeft = PREVIEW_SECONDS;
+  timerEl.textContent = `👀 ${previewLeft}`;
+  showFeedback('Запоминай, где что лежит!', true);
+
+  previewHandle = setInterval(() => {
+    previewLeft--;
+    timerEl.textContent = `👀 ${previewLeft}`;
+    if (previewLeft <= 0){
+      clearInterval(previewHandle);
+      beginMainRound();
+    }
+  }, 1000);
+}
+
+// Переворачиваем карточки обратно и запускаем основной десятиминутный раунд.
+function beginMainRound(){
+  cards.forEach(cardData => cardData.el.classList.remove('flipped'));
+  feedbackEl.textContent = '';
+
+  boardLocked = false;
+  gameActive = true;
+  timerEl.textContent = formatTime(secondsLeft);
+
+  clearInterval(timerHandle);
+  timerHandle = setInterval(tickTimer, 1000);
+}
+
+function endGame(won){
+  gameActive = false;
+  clearInterval(timerHandle);
+
+  // Учитываем оставшееся время как бонус к очкам при победе
+  if (won){
+    const timeBonus = Math.floor(secondsLeft / 2);
+    score += timeBonus;
+  }
+
+  const best = Number(localStorage.getItem(STORAGE_KEY) || 0);
+  const newBest = Math.max(best, score);
+  localStorage.setItem(STORAGE_KEY, newBest);
+
+  document.getElementById('endEmoji').textContent = won ? '🏆' : '⏰';
+  document.getElementById('endTitle').textContent = won ? 'Победа! Ты настоящий знаток информации!' : 'Время вышло';
+  document.getElementById('endText').textContent = won
+    ? 'Ты правильно нашёл все пары и отлично различаешь виды информации по форме представления!'
+    : `Ты нашёл ${matchedPairs} из ${TOTAL_PAIRS} пар. Попробуй ещё раз — обязательно получится лучше!`;
+
+  document.getElementById('finalScore').textContent = score;
+  document.getElementById('finalPairs').textContent = `${matchedPairs}/${TOTAL_PAIRS}`;
+  document.getElementById('finalBest').textContent = newBest;
+
+  updateHud();
+  endOverlay.classList.remove('hidden');
+}
+
+// ---------- 10. Обработчики кнопок ------------------------------------------
+document.getElementById('startBtn').addEventListener('click', startGame);
+document.getElementById('restartBtn').addEventListener('click', startGame);
+
+// Показать сохранённый рекорд при загрузке (не обязательно, но приятно)
+window.addEventListener('DOMContentLoaded', () => {
+  const best = Number(localStorage.getItem(STORAGE_KEY) || 0);
+  if (best > 0){
+    const p = document.createElement('p');
+    p.style.fontSize = '0.85rem';
+    p.style.color = '#7a6a99';
+    p.textContent = `Твой лучший результат: ${best} очков`;
+    document.querySelector('#startOverlay .panel').insertBefore(p, document.getElementById('startBtn'));
+  }
+});
+</script>
+</body>
+</html>

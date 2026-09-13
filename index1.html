@@ -1,0 +1,745 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Цифровой детектив: тренажёр по информатике</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --navy-deep:#141B34;
+    --navy-panel:#1E2A54;
+    --navy-panel-2:#26356B;
+    --paper:#F4F0E6;
+    --gold:#FFC857;
+    --gold-dark:#E8A93D;
+    --ok:#6BCB77;
+    --bad:#FF6B6B;
+
+    --c-text:#5DA9E9;
+    --c-num:#6BCB77;
+    --c-image:#FF6F91;
+    --c-sound:#C08FFF;
+    --c-video:#FF9F45;
+
+    --radius-big:22px;
+    --radius-mid:14px;
+    --radius-small:9px;
+  }
+
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:
+      radial-gradient(circle at 12% 8%, rgba(255,200,87,0.10), transparent 40%),
+      radial-gradient(circle at 88% 92%, rgba(192,143,255,0.12), transparent 45%),
+      var(--navy-deep);
+    min-height:100vh;
+    font-family:'Nunito', sans-serif;
+    color:var(--paper);
+    padding:28px 16px 60px;
+  }
+
+  h1,h2,h3, .display{
+    font-family:'Baloo 2', sans-serif;
+    font-weight:700;
+    margin:0;
+  }
+
+  .wrap{max-width:880px;margin:0 auto;}
+
+  /* ---------- HEADER ---------- */
+  .hero{
+    text-align:center;
+    margin-bottom:28px;
+  }
+  .hero .badge{
+    display:inline-block;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    letter-spacing:0.3px;
+    background:var(--navy-panel);
+    border:2px solid var(--gold);
+    color:var(--gold);
+    padding:5px 16px;
+    border-radius:999px;
+    margin-bottom:14px;
+  }
+  .hero h1{
+    font-size:clamp(26px,5vw,38px);
+    line-height:1.15;
+    color:var(--paper);
+  }
+  .hero h1 span{color:var(--gold);}
+  .hero p{
+    margin-top:10px;
+    font-size:16px;
+    color:#B9C2E0;
+    max-width:520px;
+    margin-left:auto;
+    margin-right:auto;
+  }
+
+  /* ---------- PROGRESS ---------- */
+  .progress-row{
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:30px;
+  }
+  .progress-step{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    background:var(--navy-panel);
+    border:2px solid var(--navy-panel-2);
+    border-radius:999px;
+    padding:8px 16px 8px 10px;
+    font-size:13px;
+    font-weight:700;
+    color:#8892B8;
+    transition:all .25s ease;
+  }
+  .progress-step .num{
+    width:22px;height:22px;border-radius:50%;
+    background:var(--navy-panel-2);
+    display:flex;align-items:center;justify-content:center;
+    font-size:12px;color:#8892B8;
+  }
+  .progress-step.active{border-color:var(--gold);color:var(--paper);}
+  .progress-step.active .num{background:var(--gold);color:#241800;}
+  .progress-step.done{border-color:var(--ok);color:var(--paper);}
+  .progress-step.done .num{background:var(--ok);color:#0a2b0d;}
+
+  /* ---------- MODULE PANEL ---------- */
+  .module{
+    display:none;
+    background:var(--navy-panel);
+    border-radius:var(--radius-big);
+    padding:26px 24px 30px;
+    border:1px solid rgba(255,255,255,0.06);
+    box-shadow:0 18px 40px rgba(0,0,0,0.35);
+  }
+  .module.active{display:block; animation:fadeUp .35s ease;}
+  @keyframes fadeUp{from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);}}
+
+  .module-eyebrow{
+    color:var(--gold);
+    font-weight:700;
+    font-size:13px;
+    margin-bottom:6px;
+  }
+  .module h2{font-size:22px; margin-bottom:8px;}
+  .module .lead{color:#B9C2E0; font-size:15px; margin-bottom:22px; line-height:1.5;}
+
+  /* ---------- MODULE 1: SORTER ---------- */
+  .pool{
+    display:flex;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:24px;
+    min-height:52px;
+  }
+  .item-card{
+    background:var(--navy-panel-2);
+    border:2px solid transparent;
+    border-radius:var(--radius-mid);
+    padding:10px 14px;
+    font-size:14.5px;
+    font-weight:600;
+    cursor:pointer;
+    transition:transform .15s ease, border-color .15s ease;
+    user-select:none;
+  }
+  .item-card:hover{transform:translateY(-2px);}
+  .item-card.selected{
+    border-color:var(--gold);
+    background:#33407A;
+  }
+  .item-card.placed{
+    opacity:0.55;
+    cursor:default;
+    transform:none;
+  }
+  .item-card .emoji{margin-right:6px;}
+
+  .baskets{
+    display:grid;
+    grid-template-columns:repeat(auto-fit, minmax(150px,1fr));
+    gap:12px;
+    margin-bottom:22px;
+  }
+  .basket{
+    border-radius:var(--radius-mid);
+    padding:14px 12px 12px;
+    min-height:120px;
+    background:var(--navy-deep);
+    border:2px dashed rgba(255,255,255,0.15);
+    cursor:pointer;
+    transition:border-color .15s ease, background .15s ease;
+    display:flex;
+    flex-direction:column;
+  }
+  .basket:hover{border-color:rgba(255,255,255,0.35);}
+  .basket .basket-title{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:14px;
+    margin-bottom:8px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .basket .basket-items{
+    display:flex;
+    flex-direction:column;
+    gap:6px;
+    flex:1;
+  }
+  .basket-chip{
+    background:rgba(255,255,255,0.08);
+    border-radius:8px;
+    padding:6px 8px;
+    font-size:12.5px;
+    font-weight:600;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:6px;
+  }
+  .basket-chip.correct{background:rgba(107,203,119,0.22); border:1px solid var(--ok);}
+  .basket-chip.wrong{background:rgba(255,107,107,0.2); border:1px solid var(--bad);}
+
+  .basket[data-type="text"]{border-color:var(--c-text);}
+  .basket[data-type="num"]{border-color:var(--c-num);}
+  .basket[data-type="image"]{border-color:var(--c-image);}
+  .basket[data-type="sound"]{border-color:var(--c-sound);}
+  .basket[data-type="video"]{border-color:var(--c-video);}
+  .basket[data-type="text"] .basket-title{color:var(--c-text);}
+  .basket[data-type="num"] .basket-title{color:var(--c-num);}
+  .basket[data-type="image"] .basket-title{color:var(--c-image);}
+  .basket[data-type="sound"] .basket-title{color:var(--c-sound);}
+  .basket[data-type="video"] .basket-title{color:var(--c-video);}
+
+  /* ---------- MODULE 2: TRUE/FALSE ---------- */
+  .statement{
+    background:var(--navy-deep);
+    border-radius:var(--radius-mid);
+    padding:16px 18px;
+    margin-bottom:14px;
+    border:2px solid transparent;
+  }
+  .statement.correct{border-color:var(--ok);}
+  .statement.wrong{border-color:var(--bad);}
+  .statement p{margin:0 0 12px; font-size:15px; font-weight:600; line-height:1.4;}
+  .tf-buttons{display:flex; gap:10px;}
+  .tf-btn{
+    flex:1;
+    padding:9px 0;
+    border-radius:var(--radius-small);
+    border:2px solid var(--navy-panel-2);
+    background:var(--navy-panel-2);
+    color:var(--paper);
+    font-family:'Baloo 2',sans-serif;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+    transition:all .15s ease;
+  }
+  .tf-btn.picked{border-color:var(--gold); background:#3A4890;}
+  .statement .explain{
+    display:none;
+    margin-top:10px;
+    font-size:13.5px;
+    color:#B9C2E0;
+    line-height:1.4;
+  }
+  .statement.revealed .explain{display:block;}
+
+  /* ---------- MODULE 3: GRID ---------- */
+  .grid-wrap{
+    display:flex;
+    gap:34px;
+    flex-wrap:wrap;
+    align-items:flex-start;
+    justify-content:center;
+    margin-bottom:10px;
+  }
+  .code-box{
+    background:var(--navy-deep);
+    border-radius:var(--radius-mid);
+    padding:16px 18px;
+    font-family:'Baloo 2', monospace;
+    min-width:180px;
+  }
+  .code-box .row{
+    display:flex;
+    gap:8px;
+    font-size:20px;
+    font-weight:700;
+    margin-bottom:6px;
+    color:var(--gold);
+  }
+  .pix-grid{
+    display:grid;
+    grid-template-columns:repeat(3, 62px);
+    grid-template-rows:repeat(3, 62px);
+    gap:6px;
+    background:var(--navy-deep);
+    padding:10px;
+    border-radius:var(--radius-mid);
+  }
+  .pix-cell{
+    background:var(--paper);
+    border-radius:6px;
+    cursor:pointer;
+    transition:background .12s ease, transform .08s ease;
+  }
+  .pix-cell:hover{transform:scale(0.96);}
+  .pix-cell.black{background:#12172B;}
+  .pix-cell.reveal-correct{outline:3px solid var(--ok);}
+  .pix-cell.reveal-wrong{outline:3px solid var(--bad);}
+
+  /* ---------- BUTTONS / NAV ---------- */
+  .btn{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    padding:12px 26px;
+    border-radius:999px;
+    border:none;
+    cursor:pointer;
+    transition:transform .12s ease, box-shadow .12s ease;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-primary{
+    background:var(--gold);
+    color:#241800;
+    box-shadow:0 8px 18px rgba(255,200,87,0.25);
+  }
+  .btn-primary:hover{box-shadow:0 10px 22px rgba(255,200,87,0.4);}
+  .btn-primary:disabled{
+    opacity:0.4;
+    cursor:not-allowed;
+    box-shadow:none;
+  }
+  .btn-ghost{
+    background:transparent;
+    color:#B9C2E0;
+    border:2px solid var(--navy-panel-2);
+  }
+  .nav-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:26px;
+  }
+  .feedback-line{
+    margin-top:16px;
+    font-weight:700;
+    font-size:15px;
+  }
+  .feedback-line.ok{color:var(--ok);}
+  .feedback-line.warn{color:var(--gold);}
+
+  /* ---------- RESULTS ---------- */
+  .results{
+    text-align:center;
+  }
+  .results .stars{font-size:44px; margin:10px 0 6px;}
+  .results .grade{
+    display:inline-block;
+    font-family:'Baloo 2',sans-serif;
+    font-size:56px;
+    font-weight:800;
+    color:var(--gold);
+    margin:6px 0;
+  }
+  .results .score-detail{
+    display:flex;
+    justify-content:center;
+    gap:22px;
+    flex-wrap:wrap;
+    margin:22px 0;
+  }
+  .score-detail .chip{
+    background:var(--navy-deep);
+    border-radius:var(--radius-mid);
+    padding:14px 18px;
+    min-width:130px;
+  }
+  .score-detail .chip .n{font-family:'Baloo 2',sans-serif; font-size:22px; font-weight:700; color:var(--gold);}
+  .score-detail .chip .l{font-size:12.5px; color:#B9C2E0; margin-top:4px;}
+
+  @media (max-width:520px){
+    .pix-grid{grid-template-columns:repeat(3, 48px); grid-template-rows:repeat(3,48px);}
+    .grid-wrap{gap:18px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <div class="hero">
+    <div class="badge">🕵️ Миссия: расшифровать информацию</div>
+    <h1>Цифровой детектив<br><span>тренажёр по информатике</span></h1>
+    <p>Три задания, три части головоломки. Пройди их все и узнай, какой ты специалист по цифровой информации.</p>
+  </div>
+
+  <div class="progress-row" id="progressRow">
+    <div class="progress-step" data-step="1"><span class="num">1</span> Сортировщик</div>
+    <div class="progress-step" data-step="2"><span class="num">2</span> Двоичный логик</div>
+    <div class="progress-step" data-step="3"><span class="num">3</span> Расшифровка</div>
+    <div class="progress-step" data-step="4"><span class="num">🏁</span> Итог</div>
+  </div>
+
+  <!-- MODULE 1 -->
+  <div class="module" id="module1">
+    <div class="module-eyebrow">Задание 1 из 3</div>
+    <h2>📦 Сортировщик информации</h2>
+    <p class="lead">Нажми на карточку, а затем на нужную корзину. Разложи все 8 предметов по видам информации: текстовая, числовая, графическая, звуковая, видео.</p>
+
+    <div class="pool" id="pool"></div>
+
+    <div class="baskets" id="baskets">
+      <div class="basket" data-type="text"><div class="basket-title">✍️ Текстовая</div><div class="basket-items"></div></div>
+      <div class="basket" data-type="num"><div class="basket-title">🔢 Числовая</div><div class="basket-items"></div></div>
+      <div class="basket" data-type="image"><div class="basket-title">🖼️ Графическая</div><div class="basket-items"></div></div>
+      <div class="basket" data-type="sound"><div class="basket-title">🔊 Звуковая</div><div class="basket-items"></div></div>
+      <div class="basket" data-type="video"><div class="basket-title">🎬 Видео</div><div class="basket-items"></div></div>
+    </div>
+
+    <div id="m1feedback" class="feedback-line"></div>
+
+    <div class="nav-row">
+      <span style="color:#8892B8; font-size:13px;" id="m1counter">Разложено: 0 из 8</span>
+      <button class="btn btn-primary" id="m1check" disabled>Проверить сортировку</button>
+    </div>
+  </div>
+
+  <!-- MODULE 2 -->
+  <div class="module" id="module2">
+    <div class="module-eyebrow">Задание 2 из 3</div>
+    <h2>💡 Двоичный логик</h2>
+    <p class="lead">Прочитай утверждение и выбери «Да» или «Нет».</p>
+    <div id="statements"></div>
+    <div class="nav-row">
+      <span></span>
+      <button class="btn btn-primary" id="m2check" disabled>Проверить ответы</button>
+    </div>
+  </div>
+
+  <!-- MODULE 3 -->
+  <div class="module" id="module3">
+    <div class="module-eyebrow">Задание 3 из 3</div>
+    <h2>🎨 Расшифруй картинку</h2>
+    <p class="lead">В компьютере каждая картинка — это набор нулей и единиц. Закрась клетки по коду: 1 — чёрная клетка, 0 — белая. Кликай по клеткам, чтобы закрасить их, и узнай, что спряталось в сетке 3×3.</p>
+
+    <div class="grid-wrap">
+      <div class="code-box">
+        <div class="row">1 - 0 - 1</div>
+        <div class="row">0 - 1 - 0</div>
+        <div class="row">1 - 0 - 1</div>
+      </div>
+      <div class="pix-grid" id="pixGrid"></div>
+    </div>
+
+    <div id="m3feedback" class="feedback-line"></div>
+
+    <div class="nav-row">
+      <span></span>
+      <button class="btn btn-primary" id="m3check">Проверить рисунок</button>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div class="module results" id="moduleResults">
+    <div class="module-eyebrow">Миссия завершена</div>
+    <h2 id="resultsTitle">Отлично поработал(а), детектив!</h2>
+    <div class="stars" id="resultsStars">⭐⭐⭐</div>
+    <div class="grade" id="resultsGrade">5</div>
+    <p class="lead" id="resultsText" style="max-width:480px; margin:0 auto;"></p>
+
+    <div class="score-detail">
+      <div class="chip"><div class="n" id="s1">0/8</div><div class="l">Сортировщик</div></div>
+      <div class="chip"><div class="n" id="s2">0/4</div><div class="l">Двоичный логик</div></div>
+      <div class="chip"><div class="n" id="s3">0/9</div><div class="l">Расшифровка</div></div>
+    </div>
+
+    <button class="btn btn-ghost" id="restartBtn">Пройти тренажёр заново</button>
+  </div>
+
+  <div class="nav-row" id="globalNav" style="max-width:880px; margin:18px auto 0;">
+    <button class="btn btn-ghost" id="prevBtn" style="visibility:hidden;">Назад</button>
+    <button class="btn btn-primary" id="nextBtn" disabled>Далее →</button>
+  </div>
+
+</div>
+
+<script>
+/* ---------------- DATA ---------------- */
+const items = [
+  {id:1, text:"Фотография кота", emoji:"📷", type:"image"},
+  {id:2, text:"Рецепт пирога в кулинарной книге", emoji:"📖", type:"text"},
+  {id:3, text:"Пение соловья в лесу", emoji:"🐦", type:"sound"},
+  {id:4, text:"Номер телефона друга", emoji:"📱", type:"num"},
+  {id:5, text:"Фрагмент мультфильма «Ну, погоди!»", emoji:"🎞️", type:"video"},
+  {id:6, text:"Знак «Пешеходный переход»", emoji:"🚸", type:"image"},
+  {id:7, text:"Решение примера 25 + 14 = 39", emoji:"➗", type:"num"},
+  {id:8, text:"Голосовое сообщение в WhatsApp", emoji:"🎙️", type:"sound"},
+];
+
+const statements = [
+  {text:"Компьютер хранит текстовую информацию в виде букв алфавита, а числа — в виде цифр.", answer:false,
+   explain:"На самом деле любая информация в компьютере — и буквы, и цифры, и картинки — хранится в виде двоичного кода: последовательности 0 и 1."},
+  {text:"Двоичный код состоит только из двух цифр: 0 и 1.", answer:true,
+   explain:"Верно! Именно поэтому код называется двоичным — в нём используется только два знака: 0 и 1."},
+  {text:"Цифра 0 в компьютере соответствует отсутствию сигнала («ВЫКЛ»).", answer:true,
+   explain:"Да, 0 обычно обозначает выключенное состояние сигнала, а 1 — включённое."},
+  {text:"Фотография в компьютере занимает место в виде набора цветовых пикселей, переведённых в 0 и 1.", answer:true,
+   explain:"Верно — каждый пиксель картинки кодируется числом, а это число, в свою очередь, записывается в двоичном коде."},
+];
+
+// 1 = black, 0 = white — target pattern (X shape)
+const targetGrid = [1,0,1, 0,1,0, 1,0,1];
+
+const typeNames = {text:"Текстовая", num:"Числовая", image:"Графическая", sound:"Звуковая", video:"Видео"};
+
+/* ---------------- STATE ---------------- */
+let currentModule = 1; // 1,2,3,4(results)
+let selectedItemId = null;
+let placements = {}; // itemId -> type
+let m1Checked = false;
+let tfAnswers = {}; // index -> bool
+let m2Checked = false;
+let pixState = new Array(9).fill(0);
+let m3Checked = false;
+let m3Score = 0;
+
+/* ---------------- MODULE 1: SORTER ---------------- */
+const poolEl = document.getElementById('pool');
+const basketsEl = document.getElementById('baskets');
+
+function renderPool(){
+  poolEl.innerHTML = '';
+  items.forEach(it=>{
+    if(placements[it.id]) return; // already placed
+    const el = document.createElement('div');
+    el.className = 'item-card' + (selectedItemId===it.id ? ' selected':'');
+    el.innerHTML = `<span class="emoji">${it.emoji}</span>${it.text}`;
+    el.onclick = ()=>{
+      selectedItemId = (selectedItemId===it.id) ? null : it.id;
+      renderPool();
+    };
+    poolEl.appendChild(el);
+  });
+  updateM1Counter();
+}
+
+function renderBasketItems(){
+  document.querySelectorAll('.basket').forEach(b=>{
+    const type = b.dataset.type;
+    const box = b.querySelector('.basket-items');
+    box.innerHTML = '';
+    Object.entries(placements).forEach(([itemId, placedType])=>{
+      if(placedType !== type) return;
+      const it = items.find(i=>i.id==itemId);
+      const chip = document.createElement('div');
+      chip.className = 'basket-chip';
+      let cls = '';
+      if(m1Checked){ cls = (it.type===type) ? 'correct' : 'wrong'; }
+      chip.classList.add(...(cls?[cls]:[]));
+      chip.innerHTML = `<span>${it.emoji} ${it.text}</span>` + (m1Checked ? (it.type===type?'✅':'❌') : '<span style="opacity:.5;">✕</span>');
+      if(!m1Checked){
+        chip.style.cursor='pointer';
+        chip.onclick = ()=>{ delete placements[it.id]; renderAll1(); };
+      }
+      box.appendChild(chip);
+    });
+  });
+}
+
+function updateM1Counter(){
+  const count = Object.keys(placements).length;
+  document.getElementById('m1counter').textContent = `Разложено: ${count} из ${items.length}`;
+  document.getElementById('m1check').disabled = (count < items.length) || m1Checked;
+}
+
+function renderAll1(){ renderPool(); renderBasketItems(); updateM1Counter(); }
+
+basketsEl.querySelectorAll('.basket').forEach(b=>{
+  b.addEventListener('click', ()=>{
+    if(m1Checked) return;
+    if(selectedItemId===null) return;
+    placements[selectedItemId] = b.dataset.type;
+    selectedItemId = null;
+    renderAll1();
+  });
+});
+
+document.getElementById('m1check').addEventListener('click', ()=>{
+  m1Checked = true;
+  let correct = 0;
+  Object.entries(placements).forEach(([itemId, placedType])=>{
+    const it = items.find(i=>i.id==itemId);
+    if(it.type===placedType) correct++;
+  });
+  window.m1Score = correct;
+  renderBasketItems();
+  const fb = document.getElementById('m1feedback');
+  fb.textContent = `Правильно разложено: ${correct} из ${items.length}. ` + (correct===items.length ? 'Отличная работа, все на своих местах! 🎉' : 'Посмотри на цветные подсказки — где ❌, там стоит подумать ещё раз.');
+  fb.className = 'feedback-line ' + (correct===items.length ? 'ok' : 'warn');
+  document.getElementById('m1check').disabled = true;
+  document.getElementById('nextBtn').disabled = false;
+});
+
+renderAll1();
+
+/* ---------------- MODULE 2: TRUE/FALSE ---------------- */
+const stEl = document.getElementById('statements');
+function renderStatements(){
+  stEl.innerHTML = '';
+  statements.forEach((s, idx)=>{
+    const div = document.createElement('div');
+    div.className = 'statement';
+    div.id = 'st'+idx;
+    div.innerHTML = `
+      <p>${idx+1}. ${s.text}</p>
+      <div class="tf-buttons">
+        <button class="tf-btn" data-val="true">Да</button>
+        <button class="tf-btn" data-val="false">Нет</button>
+      </div>
+      <div class="explain">${s.explain}</div>
+    `;
+    div.querySelectorAll('.tf-btn').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        if(m2Checked) return;
+        tfAnswers[idx] = (btn.dataset.val === 'true');
+        div.querySelectorAll('.tf-btn').forEach(b=>b.classList.remove('picked'));
+        btn.classList.add('picked');
+        updateM2Button();
+      });
+    });
+    stEl.appendChild(div);
+  });
+}
+function updateM2Button(){
+  document.getElementById('m2check').disabled = (Object.keys(tfAnswers).length < statements.length) || m2Checked;
+}
+document.getElementById('m2check').addEventListener('click', ()=>{
+  m2Checked = true;
+  let correct = 0;
+  statements.forEach((s, idx)=>{
+    const div = document.getElementById('st'+idx);
+    div.classList.add('revealed');
+    if(tfAnswers[idx] === s.answer){ div.classList.add('correct'); correct++; }
+    else{ div.classList.add('wrong'); }
+  });
+  window.m2Score = correct;
+  document.getElementById('m2check').disabled = true;
+  document.getElementById('nextBtn').disabled = false;
+});
+renderStatements();
+
+/* ---------------- MODULE 3: PIXEL GRID ---------------- */
+const pixGridEl = document.getElementById('pixGrid');
+function renderGrid(){
+  pixGridEl.innerHTML = '';
+  pixState.forEach((v, idx)=>{
+    const cell = document.createElement('div');
+    cell.className = 'pix-cell' + (v ? ' black' : '');
+    cell.addEventListener('click', ()=>{
+      if(m3Checked) return;
+      pixState[idx] = pixState[idx] ? 0 : 1;
+      renderGrid();
+    });
+    pixGridEl.appendChild(cell);
+  });
+}
+document.getElementById('m3check').addEventListener('click', ()=>{
+  m3Checked = true;
+  let correct = 0;
+  const cells = pixGridEl.querySelectorAll('.pix-cell');
+  pixState.forEach((v, idx)=>{
+    const ok = v === targetGrid[idx];
+    if(ok) correct++;
+    cells[idx].classList.add(ok ? 'reveal-correct' : 'reveal-wrong');
+  });
+  m3Score = correct;
+  const fb = document.getElementById('m3feedback');
+  fb.textContent = correct===9 ? 'Точно! У тебя получился крестик — так же зашифрован любой рисунок в компьютере, просто из гораздо большего числа точек. 🎯' : `Совпало клеток: ${correct} из 9. Зелёная рамка — верно, красная — здесь цвет перепутан.`;
+  fb.className = 'feedback-line ' + (correct===9 ? 'ok' : 'warn');
+  document.getElementById('m3check').disabled = true;
+  document.getElementById('nextBtn').disabled = false;
+});
+renderGrid();
+
+/* ---------------- NAVIGATION ---------------- */
+const modules = {1:'module1', 2:'module2', 3:'module3', 4:'moduleResults'};
+function showModule(n){
+  Object.values(modules).forEach(id=>document.getElementById(id).classList.remove('active'));
+  document.getElementById(modules[n]).classList.add('active');
+  currentModule = n;
+
+  document.querySelectorAll('.progress-step').forEach(step=>{
+    const s = parseInt(step.dataset.step);
+    step.classList.toggle('active', s===n);
+    step.classList.toggle('done', s<n);
+  });
+
+  document.getElementById('prevBtn').style.visibility = (n===1) ? 'hidden' : 'visible';
+  document.getElementById('globalNav').style.display = (n===4) ? 'none' : 'flex';
+
+  // next button enabled state depends on whether that module's check was already done
+  const doneMap = {1:m1Checked, 2:m2Checked, 3:m3Checked};
+  document.getElementById('nextBtn').disabled = !doneMap[n];
+  document.getElementById('nextBtn').textContent = (n===3) ? 'Смотреть результат →' : 'Далее →';
+}
+
+document.getElementById('nextBtn').addEventListener('click', ()=>{
+  if(currentModule===3){
+    showResults();
+    showModule(4);
+  } else {
+    showModule(currentModule+1);
+  }
+});
+document.getElementById('prevBtn').addEventListener('click', ()=>{
+  showModule(currentModule-1);
+});
+
+function showResults(){
+  const s1 = window.m1Score || 0;
+  const s2 = window.m2Score || 0;
+  const s3 = m3Score || 0;
+  document.getElementById('s1').textContent = `${s1}/8`;
+  document.getElementById('s2').textContent = `${s2}/4`;
+  document.getElementById('s3').textContent = `${s3}/9`;
+
+  const total = s1+s2+s3;
+  const max = 21;
+  const pct = total/max;
+
+  let grade, title, text, stars;
+  if(pct >= 0.9){ grade='5'; stars='⭐⭐⭐'; title='Ты настоящий цифровой детектив!'; text='Отличный результат — ты уверенно различаешь виды информации и понимаешь, как работает двоичный код.'; }
+  else if(pct >= 0.75){ grade='4'; stars='⭐⭐'; title='Отличная работа, детектив!'; text='Совсем немного до идеального результата — пересмотри пункты с ошибками и попробуй ещё раз.'; }
+  else if(pct >= 0.5){ grade='3'; stars='⭐'; title='Неплохое начало расследования!'; text='Основы понятны, но некоторые темы стоит повторить — особенно там, где были ошибки.'; }
+  else { grade='2'; stars='🔍'; title='Дело ещё не раскрыто!'; text='Не расстраивайся — повтори тему про виды информации и двоичный код, и попробуй пройти тренажёр снова.'; }
+
+  document.getElementById('resultsGrade').textContent = grade;
+  document.getElementById('resultsStars').textContent = stars;
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('resultsText').textContent = text + ` Итоговый результат: ${total} из ${max}.`;
+}
+
+document.getElementById('restartBtn').addEventListener('click', ()=>{
+  location.reload();
+});
+
+showModule(1);
+</script>
+</body>
+</html>
