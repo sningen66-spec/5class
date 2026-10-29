@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Растр и вектор — тренажёр</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Nunito:wght@500;700;800&display=swap">
+<style>
+:root{--bg:#eaf1fb;--card:#fff;--ink:#17233b;--mut:#56627a;--acc:#2858e0;--accbg:#e3ebff;--ok:#157a43;--okbg:#e0f5e8;--bad:#b82f2f;--badbg:#fde9e9;--line:#d3dcee;--px:#e0334c;color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0f1727;--card:#1a2438;--ink:#eaf0ff;--mut:#a3afc8;--acc:#7da1ff;--accbg:#22315a;--ok:#6fd49a;--okbg:#17382a;--bad:#ff9a9a;--badbg:#401e24;--line:#2e3b58;color-scheme:dark}}
+:root[data-theme="dark"]{--bg:#0f1727;--card:#1a2438;--ink:#eaf0ff;--mut:#a3afc8;--acc:#7da1ff;--accbg:#22315a;--ok:#6fd49a;--okbg:#17382a;--bad:#ff9a9a;--badbg:#401e24;--line:#2e3b58;color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:500 17px/1.55 Nunito,system-ui,"Segoe UI",Arial,sans-serif}
+main{max-width:760px;margin:0 auto;padding:20px 16px 48px}
+h1{font-size:28px;line-height:1.15;margin:8px 0 4px;font-weight:800}
+h2{font-size:22px;margin:0 0 8px;font-weight:800}
+h3{font-size:19px;margin:6px 0 10px;font-weight:800}
+p{margin:0 0 10px}
+.sub{color:var(--mut);margin:0 0 16px}
+.tabs{display:flex;gap:8px;margin:0 0 16px}
+.tab{flex:1;font:inherit;font-weight:800;padding:12px 10px;border-radius:12px;border:2px solid var(--line);background:var(--card);color:var(--ink);cursor:pointer}
+.tab[aria-selected="true"]{border-color:var(--acc);background:var(--accbg)}
+.tab:disabled{opacity:.55;cursor:not-allowed}
+.card{background:var(--card);border:2px solid var(--line);border-radius:16px;padding:18px;margin:0 0 16px}
+.btn{font:inherit;font-weight:800;background:var(--acc);color:#fff;border:0;border-radius:12px;padding:12px 20px;cursor:pointer}
+:root[data-theme="dark"] .btn{color:#0f1727}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn{color:#0f1727}}
+.btn.alt{background:var(--accbg);color:var(--ink)}
+button:focus-visible,input:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.row{display:flex;flex-wrap:wrap;gap:16px;align-items:flex-start}
+.mut{color:var(--mut);font-size:15px}
+.pg{display:grid;grid-template-columns:repeat(9,28px);gap:2px}
+.pg button{width:28px;height:28px;border:1px solid var(--line);background:var(--card);border-radius:3px;padding:0;cursor:pointer}
+.pg button.on{background:var(--px);border-color:var(--px)}
+.stage{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-end;min-height:80px;padding:12px;background:var(--bg);border-radius:12px;overflow-x:auto}
+.stage figure{margin:0;text-align:center}
+.stage figcaption{font-size:15px;font-weight:700;margin-top:6px}
+#rc{image-rendering:pixelated;display:block}
+input[type=range]{width:100%;accent-color:var(--acc)}
+.gal{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+.gal figure{margin:0;border:2px solid var(--line);border-radius:12px;padding:8px;text-align:center}
+.gal svg,.gal canvas,.gal img{object-fit:cover;width:100%;height:110px;display:block;border-radius:8px}
+.tag{display:inline-block;font-size:14px;font-weight:800;padding:2px 10px;border-radius:99px;margin-top:6px}
+.tag.r{background:var(--badbg);color:var(--bad)}.tag.v{background:var(--okbg);color:var(--ok)}
+.nums{font-weight:800}.scale{display:flex;justify-content:space-between;font-size:14px;color:var(--mut)}.bar{height:22px;background:var(--bg);border-radius:8px;overflow:hidden;margin:2px 0 10px}.bar i{display:block;height:100%;min-width:6px;border-radius:8px;transition:width .2s}#bR{background:var(--px)}.szb{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0 12px}.szb .opt{padding:8px 14px;font-weight:700}#bV{background:var(--acc)}
+.prog{color:var(--mut);font-weight:700;font-size:15px}
+.qimg{margin:6px 0 12px;overflow-x:auto}
+.opts{display:grid;gap:10px}
+.opt{font:inherit;text-align:left;padding:12px 14px;border:2px solid var(--line);border-radius:12px;background:var(--card);color:var(--ink);cursor:pointer}
+.opt.sel{border-color:var(--acc);background:var(--accbg)}
+.opt.ok{border-color:var(--ok);background:var(--okbg)}
+.opt.no{border-color:var(--bad);background:var(--badbg)}
+.fb{margin:14px 0 0;padding:12px 14px;border-radius:12px;font-weight:700}
+.fb.ok{background:var(--okbg);color:var(--ok)}.fb.no{background:var(--badbg);color:var(--bad)}
+.fb span{display:block;font-weight:500;color:var(--ink);margin-top:4px}
+.nx{margin-top:14px}
+.score{font-size:56px;font-weight:800;line-height:1;margin:4px 0}
+.rec{border-left:5px solid var(--acc);padding:6px 12px;margin:0 0 10px;background:var(--accbg);border-radius:0 10px 10px 0}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<main>
+<h1>Растр и вектор: тренажёр</h1>
+<p class="sub">Узнай, как устроены картинки в компьютере.</p>
+<div class="tabs" role="tablist">
+  <button class="tab" id="t1" role="tab" aria-selected="true">Часть 1. Обучение</button>
+  <button class="tab" id="t2" role="tab" aria-selected="false">Часть 2. Проверка</button>
+</div>
+
+<!-- ЧАСТЬ 1 -->
+<section id="p1">
+  <div class="card">
+    <h2>1. Пиксель и растр</h2>
+    <p><b>Пиксель</b> — крошечный цветной квадратик. <b>Растровое изображение</b> — это мозаика из пикселей. У каждого пикселя свой цвет. Чем больше пикселей, тем чётче и подробнее картинка.</p>
+    <p class="mut">Попробуй сам: нажимай на квадратики и рисуй.</p>
+    <div class="row">
+      <div class="pg" id="pg" aria-label="Поле для рисования пикселями"></div>
+      <div style="display:grid;gap:8px"><button class="btn alt" id="pgHeart">Сердечко</button><button class="btn alt" id="pgClear">Очистить</button></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Вектор</h2>
+    <p><b>Векторное изображение</b> — не мозаика, а инструкция для компьютера: «нарисуй круг вот здесь, такого размера и такого цвета». Картинка состоит из линий, кривых и фигур, а не из пикселей.</p>
+  </div>
+
+  <div class="card">
+    <h2>3. Масштабирование</h2>
+    <p><b>Масштабирование</b> — это увеличение или уменьшение картинки. Двигай ползунок и сравни.</p>
+    <input type="range" id="zoom" min="3" max="20" value="4" aria-label="Размер картинки">
+    <div class="stage">
+      <figure><canvas id="rc" width="9" height="8"></canvas><figcaption>Растровое</figcaption></figure>
+      <figure><svg id="vs" viewBox="0 0 100 90"><path d="M50 85C10 55 0 30 20 12 35 0 48 10 50 20 52 10 65 0 80 12 100 30 90 55 50 85Z" fill="#e0334c"/></svg><figcaption>Векторное</figcaption></figure>
+    </div>
+    <p style="margin-top:10px">Растр при увеличении «рассыпается» на заметные квадраты. Вектор каждый раз рисуется заново и остаётся гладким.</p>
+  </div>
+
+  <div class="card">
+    <h2>4. Размер файла</h2>
+    <p>Растровый файл помнит цвет <b>каждого</b> пикселя, поэтому чем больше пикселей, тем он тяжелее. Вектор помнит только описание фигур, и оно почти не зависит от размера картинки.</p>
+    <p>Выбери размер растровой картинки (в пикселях). Сейчас выбрано: <b id="szLbl"></b>.</p>
+    <div class="szb" id="szB"></div>
+    <p class="nums" id="szOut" style="margin-top:10px"></p>
+    <div>Растровый файл<div class="bar"><i id="bR"></i></div>Векторный файл<div class="bar"><i id="bV" style="width:1%"></i></div></div>
+    <p class="mut">Размер растра показан без сжатия (3 байта на пиксель). Форматы вроде JPG сжимают файл, но принцип тот же.</p>
+  </div>
+
+  <div class="card">
+    <h2>5. Примеры</h2>
+    <div class="gal">
+      <figure><img id="photo" alt="Фотография кошки" src="data:image/jpeg;base64,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">Фотография<br><span class="tag r">растр</span></figure>
+      <figure><svg viewBox="0 0 120 80"><rect width="120" height="80" fill="#2858e0"/><circle cx="60" cy="40" r="28" fill="#fff"/><polygon points="60,18 66,34 83,34 69,44 74,60 60,50 46,60 51,44 37,34 54,34" fill="#f5b700"/></svg>Логотип<br><span class="tag v">вектор</span></figure>
+      <figure><svg viewBox="0 0 120 80"><rect width="120" height="80" fill="#dff1ff"/><rect x="30" y="38" width="60" height="36" fill="#f5b700"/><polygon points="22,38 60,8 98,38" fill="#e0334c"/><rect x="52" y="52" width="16" height="22" fill="#17233b"/></svg>Значок «дом»<br><span class="tag v">вектор</span></figure>
+      <figure><div id="px2" style="height:110px;display:grid;place-items:center"></div>Пиксель-арт<br><span class="tag r">растр</span></figure>
+    </div>
+    <p style="margin-top:12px"><b>Растр:</b> фотографии, скриншоты (JPG, PNG). <b>Вектор:</b> логотипы, схемы, чертежи (SVG).</p>
+  </div>
+
+  <div class="card"><h2>Закрепление</h2><p class="mut">Отвечай на вопросы. Если ошибёшься, мы объясним правильный ответ.</p><div id="quiz1"></div></div>
+</section>
+
+<!-- ЧАСТЬ 2 -->
+<section id="p2" hidden>
+  <div class="card" id="intro">
+    <h2>Проверка знаний</h2>
+    <p>10 вопросов, в каждом один правильный ответ. Подсказок и объяснений во время теста нет, оценка будет в конце по 10-балльной шкале.</p>
+    <p><b>Внимание:</b> после запуска теста часть 1 станет недоступной, пока ты не закончишь.</p>
+    <button class="btn" id="start">Начать проверку</button>
+  </div>
+  <div class="card" id="quiz2" hidden></div>
+  <div class="card" id="result" hidden></div>
+</section>
+</main>
+
+<script>
+const $=s=>document.querySelector(s);
+const HEART=["..XX.XX..",".XXXXXXX.","XXXXXXXXX","XXXXXXXXX",".XXXXXXX.","..XXXXX..","...XXX...","....X...."];
+const heartSVG=c=>{let s=`<svg viewBox="0 0 ${9*c} ${8*c}" width="${9*c}" height="${8*c}" role="img" aria-label="Сильно увеличенная картинка из квадратиков">`;HEART.forEach((r,y)=>[...r].forEach((ch,x)=>{if(ch=='X')s+=`<rect x="${x*c}" y="${y*c}" width="${c}" height="${c}" fill="#e0334c" stroke="#fff" stroke-width="1"/>`}));return s+'</svg>'};
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;[a[i],a[j]]=[a[j],a[i]]}return a};
+
+/* демо */
+const pg=$('#pg');
+for(let i=0;i<72;i++){const b=document.createElement('button');b.setAttribute('aria-label','Пиксель '+(i+1));b.onclick=()=>b.classList.toggle('on');pg.appendChild(b)}
+const setPg=f=>[...pg.children].forEach((b,i)=>b.classList.toggle('on',f(i)));
+$('#pgHeart').onclick=()=>setPg(i=>HEART[i/9|0][i%9]=='X');
+$('#pgClear').onclick=()=>setPg(()=>false);
+setPg(i=>HEART[i/9|0][i%9]=='X');
+const rc=$('#rc'),rx=rc.getContext('2d');rx.fillStyle='#e0334c';
+HEART.forEach((r,y)=>[...r].forEach((ch,x)=>{if(ch=='X')rx.fillRect(x,y,1,1)}));
+const zoom=()=>{const z=+$('#zoom').value;rc.style.width=9*z+'px';rc.style.height=8*z+'px';const v=$('#vs');v.style.width=9*z+'px';v.style.height=8*z+'px'};
+$('#zoom').oninput=zoom;zoom();
+const SIDES=[10,100,500,1000,3000];
+const fmt=b=>b<1024?b+' байт':b<1048576?(b/1024).toFixed(1).replace('.',',')+' КБ':(b/1048576).toFixed(1).replace('.',',')+' МБ';
+let szi=1;const sz=()=>{const s=SIDES[szi],p=s*s;document.querySelectorAll('#szB button').forEach((b,k)=>b.classList.toggle('sel',k==szi));$('#szLbl').textContent=s+'×'+s;$('#bR').style.width=Math.max(1,p*3/27e6*100)+'%';$('#szOut').innerHTML=`Растр ${s}×${s}: ${p.toLocaleString('ru-RU')} пикселей ≈ ${fmt(p*3)}<br>Вектор (любой размер): ≈ 1 КБ`};
+SIDES.forEach((s,k)=>{const b=document.createElement('button');b.className='opt';b.textContent=s+'×'+s;b.onclick=()=>{szi=k;sz()};$('#szB').appendChild(b)});sz();
+$('#px2').innerHTML=heartSVG(11);
+
+/* вопросы: верный ответ всегда первым, порядок перемешивается */
+const PRACTICE=[
+{t:'pixel',img:()=>heartSVG(16),q:'Мы сильно увеличили картинку и увидели квадратики. Как они называются?',o:['Пиксели','Векторы','Буквы','Слои'],e:'Маленькие цветные квадратики называются пикселями. Из них составлено растровое изображение.'},
+{t:'raster',q:'Из чего состоит растровое изображение?',o:['Из сетки цветных пикселей','Из формул и линий','Из букв','Из звуков'],e:'Растровое изображение — это сетка пикселей. У каждого пикселя свой цвет, и вместе они образуют картинку.'},
+{t:'vector',q:'Как компьютер хранит векторное изображение?',o:['Как описание фигур: линии, круги, цвета','Как огромную таблицу пикселей','Как набор звуков','Как фотографию'],e:'Вектор — это инструкция: какие фигуры нарисовать, где и каким цветом. Пикселей в файле нет.'},
+{t:'scaling',q:'Что произойдёт, если сильно увеличить растровую картинку?',o:['Появятся заметные квадраты, картинка станет «ступенчатой»','Она останется идеально чёткой','Файл станет меньше','Она станет чёрно-белой'],e:'Пикселей не прибавляется, они просто становятся крупнее. Поэтому видны квадраты и картинка теряет чёткость.'},
+{t:'scaling',q:'Логотип нужно напечатать и на маленькой визитке, и на огромном рекламном щите. Какой формат подойдёт лучше?',o:['Векторный: он не теряет чёткости','Растровый: он всегда чёткий','Любой, разницы нет','Только чёрно-белый'],e:'Вектор при увеличении рисуется заново по формулам, поэтому линии остаются гладкими при любом размере.'},
+{t:'examples',q:'Что обычно является растровым изображением?',o:['Фотография с фотоаппарата','Чертёж из линий','Логотип из кругов и линий','Схема из стрелок'],e:'Фотография состоит из миллионов пикселей с плавными переходами цвета, поэтому её хранят как растр. Чертежи, логотипы и схемы чаще делают векторными.'},
+{t:'size',q:'От чего сильнее всего зависит размер файла растровой картинки?',o:['От количества пикселей','От цвета рамки','От имени файла','От названия программы'],e:'Файл хранит цвет каждого пикселя. Чем больше пикселей, тем больше данных и тем тяжелее файл.'},
+{t:'size',q:'Простой логотип из нескольких фигур в векторном виде обычно…',o:['занимает очень мало места','весит больше фотографии','состоит из миллионов пикселей','нельзя увеличить'],e:'Вектор хранит только описание нескольких фигур, поэтому файл получается маленьким.'}];
+const TEST=[
+{t:'pixel',q:'Пиксель — это…',o:['самая маленькая цветная точка (квадратик) изображения','длинная линия на рисунке','название программы для рисования','формула для рисования круга'],},
+{t:'pixel',q:'В двух фотографиях одинакового размера на экране у одной пикселей больше. Какая будет более чёткой и подробной?',o:['Та, где пикселей больше','Та, где пикселей меньше','Они всегда одинаковые','Та, где больше букв в названии файла']},
+{t:'raster',q:'Файл с расширением JPG — это обычно…',o:['растровое изображение','векторное изображение','звук','текстовый документ']},
+{t:'vector',q:'Формат SVG используют для…',o:['векторных изображений','фотографий с фотоаппарата','видеороликов','музыки']},
+{t:'scaling',q:'Какую картинку можно увеличить в 100 раз без потери качества?',o:['Векторную','Растровую','Любую','Никакую']},
+{t:'scaling',q:'Маленькую фотографию растянули на весь экран. Что будет?',o:['Она станет размытой и «квадратной»','Она станет ещё чётче','Она превратится в вектор','Ничего не изменится']},
+{t:'size',q:'Есть два растровых фото: 200×200 и 2000×2000 пикселей. Какое весит больше?',o:['Второе, 2000×2000','Первое, 200×200','Одинаково','Зависит от цвета неба']},
+{t:'size',q:'Векторный рисунок увеличили на экране вдвое. Как изменится размер его файла?',o:['Почти не изменится','Увеличится вдвое','Увеличится в 4 раза','Файл исчезнет']},
+{t:'examples',q:'Что лучше нарисовать в векторном виде?',o:['Эмблему школы из простых фигур','Фото летнего пейзажа','Снимок кота с пушистой шерстью','Скриншот игры']},
+{t:'examples',q:'Что лучше хранить как растровое изображение?',o:['Фотографию с плавными переходами цвета','Схему метро из линий','Чертёж деталей','Простой значок из круга и квадрата']}];
+const TOPIC={pixel:['Пиксель и растр','Повтори раздел «1. Пиксель и растр»: пиксель — цветной квадратик, а чем больше пикселей, тем чётче картинка.'],
+raster:['Растровые изображения','Повтори раздел «1. Пиксель и растр»: растр — это сетка из пикселей, а JPG и PNG — растровые форматы.'],
+vector:['Векторные изображения','Повтори раздел «2. Вектор»: вектор — это описание фигур и линий, а не пиксели. Формат SVG — векторный.'],
+scaling:['Масштабирование','Повтори раздел «3. Масштабирование» и поиграй с ползунком: растр при увеличении становится «квадратным», вектор остаётся гладким.'],
+size:['Размер файла','Повтори раздел «4. Размер файла»: у растра файл тем тяжелее, чем больше пикселей, а у вектора размер почти не зависит от масштаба.'],
+examples:['Примеры','Повтори раздел «5. Примеры»: фото и скриншоты — растр, а логотипы, схемы и чертежи — вектор.']};
+
+/* движок вопросов */
+function makeQuiz(el,qs,fb,done){
+  let i=0,res=[];
+  const show=()=>{
+    const q=qs[i],opts=shuffle(q.o.map((t,k)=>({t,ok:k===0})));let sel=null,locked=false;
+    el.innerHTML=`<div class="prog">Вопрос ${i+1} из ${qs.length}</div><h3>${q.q}</h3>${q.img?`<div class="qimg">${q.img()}</div>`:''}<div class="opts"></div><div class="fb" hidden></div><button class="btn nx" hidden>${i==qs.length-1?(fb?'Завершить':'Завершить тест'):'Дальше'}</button>`;
+    const box=el.querySelector('.opts'),f=el.querySelector('.fb'),nx=el.querySelector('.nx'),bs=[];
+    opts.forEach(o=>{const b=document.createElement('button');b.className='opt';b.textContent=o.t;bs.push(b);
+      b.onclick=()=>{if(locked)return;sel=o;
+        if(fb){locked=true;const right=opts.find(x=>x.ok);
+          bs.forEach((x,k)=>{if(opts[k].ok)x.classList.add('ok')});
+          if(o.ok){f.className='fb ok';f.innerHTML=`Верно! <span>${q.e}</span>`}
+          else{b.classList.add('no');f.className='fb no';f.innerHTML=`Не совсем. Правильный ответ: «${right.t}». <span>Почему: ${q.e}</span>`}
+          f.hidden=false}
+        else bs.forEach((x,k)=>x.classList.toggle('sel',opts[k]===o));
+        nx.hidden=false};
+      box.appendChild(b)});
+    nx.onclick=()=>{res.push({t:q.t,q:q.q,ok:sel.ok});i++;i<qs.length?show():done(res)};
+  };
+  show();
+}
+
+/* часть 1 */
+function startPractice(){makeQuiz($('#quiz1'),PRACTICE,true,res=>{
+  const n=res.filter(r=>r.ok).length,bad=[...new Set(res.filter(r=>!r.ok).map(r=>TOPIC[r.t][0]))];
+  $('#quiz1').innerHTML=`<h3>Ты ответил верно на ${n} из ${res.length}</h3><p>${bad.length?'Стоит ещё раз заглянуть в темы: '+bad.join(', ')+'.':'Отлично, ошибок нет!'} Когда будешь готов, переходи к части 2.</p><button class="btn alt" id="again">Пройти ещё раз</button> <button class="btn" id="goTest">К проверке</button>`;
+  $('#again').onclick=startPractice;$('#goTest').onclick=()=>pane(2)})}
+startPractice();
+
+/* вкладки и блокировка */
+let locked=false;
+function pane(n){$('#p1').hidden=n!=1;$('#p2').hidden=n!=2;$('#t1').setAttribute('aria-selected',n==1);$('#t2').setAttribute('aria-selected',n==2);scrollTo(0,0)}
+$('#t1').onclick=()=>{if(!locked)pane(1)};$('#t2').onclick=()=>pane(2);
+function lock(on){locked=on;const t=$('#t1');t.disabled=on;t.textContent=on?'🔒 Часть 1 закрыта':'Часть 1. Обучение'}
+
+/* часть 2 */
+$('#start').onclick=()=>{
+  lock(true);pane(2);$('#intro').hidden=true;$('#result').hidden=true;$('#quiz2').hidden=false;
+  makeQuiz($('#quiz2'),shuffle(TEST.slice()),false,res=>{
+    const n=res.filter(r=>r.ok).length,wrong=res.filter(r=>!r.ok);
+    const msg=n==10?'Блестяще! Ты отлично разобрался в теме.':n>=8?'Хороший результат! Совсем немного осталось подтянуть.':n>=5?'Неплохо, но есть что повторить.':'Пока рано расслабляться. Повтори материал и попробуй снова.';
+    let h=`<h2>Твоя оценка</h2><div class="score">${n} из 10</div><p><b>${msg}</b></p>`;
+    if(wrong.length){const by={};wrong.forEach(w=>(by[w.t]=by[w.t]||[]).push(w.q));
+      h+=`<h3>Что нужно повторить</h3>`+Object.keys(by).map(k=>`<div class="rec"><b>${TOPIC[k][0]}</b> (ошибок: ${by[k].length})<br>${TOPIC[k][1]}</div>`).join('')+`<p class="mut">Вопросы с ошибками:</p><ul class="mut">${wrong.map(w=>`<li>${w.q}</li>`).join('')}</ul>`}
+    else h+=`<p>Ошибок нет, повторять ничего не нужно.</p>`;
+    h+=`<button class="btn" id="redo">Вернуться к обучению</button>`;
+    $('#quiz2').hidden=true;$('#result').innerHTML=h;$('#result').hidden=false;lock(false);
+    $('#redo').onclick=()=>{$('#result').hidden=true;$('#intro').hidden=false;startPractice();pane(1)};
+  });
+};
+</script>
+</body>
+</html>
